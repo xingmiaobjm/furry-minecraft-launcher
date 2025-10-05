@@ -1,5 +1,7 @@
 # Furry Minecraft Launcher
 
+# 注意，本仓库内的资产尚未开发完全，请勿使用！
+
 一个支持三端（Windows、macOS、Linux）的Minecraft启动器，带有Furry风格的界面设计。
 
 ## 特点
