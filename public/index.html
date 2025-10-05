@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Furry Minecraft Launcher</title>
+  <style>
+    /* 全局样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background-color: #f3f4f6;
+      color: #333333;
+      overflow: hidden;
+      user-select: none;
+    }
+    
+    /* 主容器 */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    /* 侧边栏 */
+    .sidebar {
+      width: 80px;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s ease;
+      border-right: 1px solid #e5e7eb;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .sidebar:hover {
+      width: 200px;
+    }
+    
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      width: 100%;
+      color: #333333;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid transparent;
+    }
+    
+    .sidebar-item:hover {
+      background-color: #f0f9ff;
+      transform: translateX(5px);
+    }
+    
+    .sidebar-item.active {
+      background-color: #e0f2fe;
+      color: #0099ff;
+    }
+    
+    .sidebar-icon {
+      width: 40px;
+      height: 40px;
+      margin-right: 15px;
+      background-color: #0099ff;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-text {
+      white-space: nowrap;
+      overflow: hidden;
+      opacity: 0;
+      width: 0;
+      transition: all 0.3s;
+    }
+    
+    .sidebar:hover .sidebar-text {
+      opacity: 1;
+      width: auto;
+    }
+    
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f9fafb;
+    }
+    
+    /* 页面容器 */
+    .page {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 卡片样式 */
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 按钮样式 */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid transparent;
+    }
+    
+    .btn-primary {
+      background-color: #0099ff;
+      color: #ffffff;
+    }
+    
+    .btn-primary:hover {
+      background-color: #0078d4;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background-color: #ffffff;
+      color: #333333;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f3f4f6;
+      border-color: #0099ff;
+    }
+    
+    /* 输入框样式 */
+    .input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #333333;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: #0099ff;
+      box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+    }
+    
+    /* 选择框样式 */
+    .select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #333333;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    
+    .select:focus {
+      outline: none;
+      border-color: #0099ff;
+      box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+    }
+    
+    /* 进度条样式 */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #0099ff;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    /* 列表样式 */
+    .list {
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .list-item {
+      padding: 15px;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      color: #333333;
+    }
+    
+    .list-item:hover {
+      background-color: #f0f9ff;
+    }
+    
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    
+    /* 启动页面样式 */
+    .launch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 500px;
+    }
+    
+    .version-selector {
+      width: 300px;
+      margin-bottom: 20px;
+    }
+    
+    .launch-button {
+      width: 300px;
+      padding: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    /* 设置页面样式 */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+    
+    .setting-label {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .path-input-container {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .path-input {
+      flex: 1;
+    }
+    
+    /* 滑块样式 */
+    .slider {
+      width: 100%;
+      margin: 10px 0;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      outline: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #0099ff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #0099ff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 切换开关样式 */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e5e7eb;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #0099ff;
+    }
+    
+    input:focus + .toggle-slider {
+      box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        background-color: #ffffff;
+        border-right: 1px solid #e5e7eb;
+      }
+      
+      .sidebar:hover {
+        width: 180px;
+      }
+      
+      .sidebar-icon {
+        width: 30px;
+        height: 30px;
+        background-color: #0099ff;
+        border-radius: 6px;
+      }
+      
+      .sidebar-item {
+        color: #333333;
+        border: 1px solid transparent;
+      }
+      
+      .card {
+        padding: 15px;
+        border-radius: 8px;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+      <div class="sidebar-item active" data-page="launch">
+        <div class="sidebar-icon"></div>
+        <span class="sidebar-text">启动</span>
+      </div>
+      <div class="sidebar-item" data-page="download">
+        <div class="sidebar-icon"></div>
+        <span class="sidebar-text">下载</span>
+      </div>
+      <div class="sidebar-item" data-page="multiplayer">
+        <div class="sidebar-icon"></div>
+        <span class="sidebar-text">多人游戏</span>
+      </div>
+      <div class="sidebar-item" data-page="settings">
+        <div class="sidebar-icon"></div>
+        <span class="sidebar-text">设置</span>
+      </div>
+      <div class="sidebar-item" data-page="others">
+        <div class="sidebar-icon"></div>
+        <span class="sidebar-text">其他</span>
+      </div>
+    </aside>
+    
+    <!-- 主内容区域 -->
+    <main class="main-content">
+      <!-- 启动页面 -->
+      <div class="page active" id="launch">
+        <div class="card">
+          <h1>Furry Minecraft Launcher</h1>
+          <p>选择版本并启动游戏</p>
+        </div>
+        
+        <div class="card launch-container">
+          <div class="version-selector">
+            <select class="select" id="versionSelect">
+              <option value="">请选择游戏版本</option>
+              <!-- 版本选项将通过JavaScript动态加载 -->
+            </select>
+          </div>
+          
+          <button class="btn btn-primary launch-button" id="launchButton">启动游戏</button>
+          
+          <div class="status" id="launchStatus" style="margin-top: 20px; text-align: center;"></div>
+        </div>
+      </div>
+      
+      <!-- 下载页面 -->
+      <div class="page" id="download">
+        <div class="card">
+          <h2>下载游戏版本</h2>
+          
+          <div class="setting-item">
+            <label class="setting-label">下载源</label>
+            <select class="select" id="downloadSource">
+              <option value="official">官方源</option>
+              <option value="bmclapi">BMCLAPI</option>
+              <option value="mcbbs">MCBBS</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">游戏版本</label>
+            <select class="select" id="versionList">
+              <option value="">正在加载版本列表...</option>
+              <!-- 版本列表将通过JavaScript动态加载 -->
+            </select>
+          </div>
+          
+          <button class="btn btn-primary" id="downloadButton">下载选中版本</button>
+        </div>
+        
+        <!-- 下载队列 -->
+        <div class="card">
+          <h3>下载队列</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%"></div>
+          </div>
+          <div id="downloadProgress">等待开始下载...</div>
+          
+          <ul class="list" id="downloadQueue">
+            <!-- 下载队列项将通过JavaScript动态加载 -->
+          </ul>
+        </div>
+      </div>
+      
+      <!-- 多人游戏页面 -->
+      <div class="page" id="multiplayer">
+        <div class="card">
+          <h2>多人游戏</h2>
+          <p>创建或加入P2P房间</p>
+        </div>
+        
+        <div class="card">
+          <h3>创建房间</h3>
+          <div class="setting-item">
+            <label class="setting-label">房间名称</label>
+            <input type="text" class="input" id="roomName" placeholder="输入房间名称">
+          </div>
+          <button class="btn btn-primary" id="createRoomButton">创建房间</button>
+        </div>
+        
+        <div class="card">
+          <h3>加入房间</h3>
+          <div class="setting-item">
+            <label class="setting-label">房间ID</label>
+            <input type="text" class="input" id="roomId" placeholder="输入房间ID">
+          </div>
+          <button class="btn btn-secondary" id="joinRoomButton">加入房间</button>
+        </div>
+        
+        <div class="card">
+          <h3>房间状态</h3>
+          <div id="roomStatus">未连接到房间</div>
+        </div>
+      </div>
+      
+      <!-- 设置页面 -->
+      <div class="page" id="settings">
+        <div class="card">
+          <h2>游戏设置</h2>
+          
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label class="setting-label">游戏目录</label>
+              <div class="path-input-container">
+                <input type="text" class="input path-input" id="gameDir" readonly>
+                <button class="btn btn-secondary" id="selectGameDir">浏览</button>
+              </div>
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">Java路径</label>
+              <div class="path-input-container">
+                <input type="text" class="input path-input" id="javaPath" readonly>
+                <button class="btn btn-secondary" id="selectJavaPath">浏览</button>
+              </div>
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">最小内存 (MB): <span id="minMemoryValue">1024</span></label>
+              <input type="range" class="slider" id="minMemory" min="512" max="8192" step="512" value="1024">
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">最大内存 (MB): <span id="maxMemoryValue">2048</span></label>
+              <input type="range" class="slider" id="maxMemory" min="1024" max="16384" step="512" value="2048">
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">全屏启动</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="fullscreen">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>界面设置</h2>
+          
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label class="setting-label">主题</label>
+              <select class="select" id="theme">
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+                <option value="auto">跟随系统</option>
+              </select>
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">Furry风格</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="furryStyle" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" id="saveSettings">保存设置</button>
+      </div>
+      
+      <!-- 其他页面 -->
+      <div class="page" id="others">
+        <div class="card">
+          <h2>关于</h2>
+          <p>Furry Minecraft Launcher v1.0.0</p>
+          <p>一个支持三端的Minecraft启动器</p>
+        </div>
+        
+        <div class="card">
+          <h2>帮助</h2>
+          <p>如果遇到问题，请查看帮助文档</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // 页面导航逻辑
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        // 移除所有活动状态
+        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        
+        // 添加当前活动状态
+        item.classList.add('active');
+        const pageId = item.getAttribute('data-page');
+        document.getElementById(pageId).classList.add('active');
+      });
+    });
+    
+    // 内存滑块事件
+    document.getElementById('minMemory').addEventListener('input', function() {
+      document.getElementById('minMemoryValue').textContent = this.value;
+    });
+    
+    document.getElementById('maxMemory').addEventListener('input', function() {
+      document.getElementById('maxMemoryValue').textContent = this.value;
+    });
+    
+    // 文件选择器事件
+    document.getElementById('selectGameDir').addEventListener('click', async () => {
+      const path = await window.electronAPI.selectDirectory();
+      if (path) {
+        document.getElementById('gameDir').value = path;
+      }
+    });
+    
+    document.getElementById('selectJavaPath').addEventListener('click', async () => {
+      const path = await window.electronAPI.selectFile([
+        { name: 'Java Executable', extensions: ['exe', ''] }
+      ]);
+      if (path) {
+        document.getElementById('javaPath').value = path;
+      }
+    });
+    
+    // 保存设置
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      const settings = {
+        gameDir: document.getElementById('gameDir').value,
+        javaPath: document.getElementById('javaPath').value,
+        memory: {
+          min: parseInt(document.getElementById('minMemory').value),
+          max: parseInt(document.getElementById('maxMemory').value)
+        },
+        fullscreen: document.getElementById('fullscreen').checked,
+        theme: document.getElementById('theme').value,
+        furryStyle: document.getElementById('furryStyle').checked
+      };
+      
+      // 通过IPC发送设置保存请求
+      window.events.send('save-settings', settings);
+      
+      // 显示保存成功消息
+      const status = document.createElement('div');
+      status.textContent = '设置已保存';
+      status.style.color = 'green';
+      status.style.marginTop = '10px';
+      document.getElementById('settings').appendChild(status);
+      
+      setTimeout(() => {
+        status.remove();
+      }, 2000);
+    });
+    
+    // 启动游戏
+    document.getElementById('launchButton').addEventListener('click', () => {
+      const version = document.getElementById('versionSelect').value;
+      if (!version) {
+        document.getElementById('launchStatus').textContent = '请先选择游戏版本';
+        return;
+      }
+      
+      document.getElementById('launchStatus').textContent = '正在启动游戏...';
+      window.events.send('start-game', version);
+    });
+    
+    // 下载游戏版本
+    document.getElementById('downloadButton').addEventListener('click', () => {
+      const version = document.getElementById('versionList').value;
+      if (!version) {
+        alert('请选择要下载的版本');
+        return;
+      }
+      
+      const source = document.getElementById('downloadSource').value;
+      document.getElementById('downloadProgress').textContent = `开始下载版本: ${version}`;
+      
+      // 这里将通过IPC发送下载请求
+    });
+    
+    // 创建/加入房间
+    document.getElementById('createRoomButton').addEventListener('click', () => {
+      const roomName = document.getElementById('roomName').value;
+      if (!roomName) {
+        alert('请输入房间名称');
+        return;
+      }
+      
+      document.getElementById('roomStatus').textContent = `正在创建房间: ${roomName}`;
+      // 这里将通过IPC发送创建房间请求
+    });
+    
+    document.getElementById('joinRoomButton').addEventListener('click', () => {
+      const roomId = document.getElementById('roomId').value;
+      if (!roomId) {
+        alert('请输入房间ID');
+        return;
+      }
+      
+      document.getElementById('roomStatus').textContent = `正在加入房间: ${roomId}`;
+      // 这里将通过IPC发送加入房间请求
+    });
+    
+    // 初始化函数
+    async function init() {
+      // 加载设置
+      try {
+        const appDataPath = await window.electronAPI.getAppDataPath();
+        const launcherDataPath = window.pathUtils.join(appDataPath, 'FurryMinecraftLauncher');
+        const configPath = window.pathUtils.join(launcherDataPath, 'config.json');
+        
+        // 在实际实现中，这里会通过IPC请求配置数据
+        // 这里只是模拟设置加载
+        document.getElementById('gameDir').value = window.pathUtils.join(window.electronAPI.homedir, '.minecraft');
+      } catch (error) {
+        console.error('初始化失败:', error);
+      }
+    }
+    
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

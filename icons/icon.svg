@@ -1,0 +1,47 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆 -->
+  <circle cx="128" cy="128" r="120" fill="#2E3440"/>
+  
+  <!-- 主要色调圆环 -->
+  <circle cx="128" cy="128" r="115" fill="none" stroke="#5E81AC" stroke-width="10"/>
+  
+  <!-- 头部轮廓 -->
+  <ellipse cx="128" cy="80" rx="60" ry="70" fill="#BF616A"/>
+  
+  <!-- 耳朵 -->
+  <ellipse cx="70" cy="40" rx="20" ry="35" fill="#BF616A"/>
+  <ellipse cx="186" cy="40" rx="20" ry="35" fill="#BF616A"/>
+  
+  <!-- 内耳 -->
+  <ellipse cx="70" cy="45" rx="12" ry="20" fill="#EBCB8B"/>
+  <ellipse cx="186" cy="45" rx="12" ry="20" fill="#EBCB8B"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="102" cy="75" r="12" fill="#2E3440"/>
+  <circle cx="154" cy="75" r="12" fill="#2E3440"/>
+  <circle cx="105" cy="72" r="6" fill="white"/>
+  <circle cx="157" cy="72" r="6" fill="white"/>
+  
+  <!-- 鼻子 -->
+  <polygon points="128,90 118,105 138,105" fill="#EBCB8B"/>
+  
+  <!-- 嘴 -->
+  <path d="M118,120 Q128,130 138,120" stroke="#2E3440" stroke-width="3" fill="none"/>
+  
+  <!-- Minecraft 方块元素 -->
+  <g transform="translate(80, 140) scale(0.6)">
+    <!-- 草方块 -->
+    <rect x="0" y="0" width="64" height="64" fill="#8CB25C"/>
+    <rect x="0" y="0" width="64" height="16" fill="#5F8144"/>
+    <rect x="0" y="0" width="16" height="64" fill="#74A33F"/>
+    
+    <!-- 方块纹理 -->
+    <rect x="8" y="8" width="16" height="8" fill="#69923B"/>
+    <rect x="32" y="8" width="16" height="8" fill="#69923B"/>
+    <rect x="8" y="24" width="16" height="8" fill="#69923B"/>
+    <rect x="32" y="24" width="16" height="8" fill="#69923B"/>
+  </g>
+  
+  <!-- 底部爪印 -->
+  <path d="M70,200 C70,190 90,190 90,200 C90,210 70,210 70,200 Z M128,200 C128,190 148,190 148,200 C148,210 128,210 128,200 Z M186,200 C186,190 206,190 206,200 C206,210 186,210 186,200 Z" fill="#A3BE8C"/>
+</svg>
