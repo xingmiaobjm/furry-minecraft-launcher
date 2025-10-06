@@ -70,7 +70,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const validChannels = [
       'download-progress-',
       'game-status-',
-      'update-available'
+      'update-available',
+      'p2p-room-',
+      'p2p-player-',
+      'p2p-message-received'
     ];
     
     // 检查通道是否有效（支持通配符前缀）
@@ -92,7 +95,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const validChannels = [
       'download-progress-',
       'game-status-',
-      'update-available'
+      'update-available',
+      'p2p-room-',
+      'p2p-player-',
+      'p2p-message-received'
     ];
     
     // 检查通道是否有效（支持通配符前缀）
@@ -109,7 +115,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const validChannels = [
       'ui-event',
       'user-action',
-      'debug-log'
+      'debug-log',
+      'p2p-create-room',
+      'p2p-join-room',
+      'p2p-leave-room',
+      'p2p-send-message',
+      'window-min',
+      'window-max',
+      'window-close'
     ];
     
     if (validChannels.includes(channel)) {

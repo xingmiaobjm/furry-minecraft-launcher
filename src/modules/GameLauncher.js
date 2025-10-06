@@ -22,6 +22,26 @@ class GameLauncher {
       // 合并选项
       this.launchOptions = { ...this.getDefaultLaunchOptions(), ...options };
       
+      // 获取版本信息
+      const versionId = this.launchOptions.versionId;
+      const versionInfo = await this.versionManager.getVersionInfo(versionId);
+      if (!versionInfo) {
+        throw new Error(`版本 ${versionId} 不存在`);
+      }
+      
+      // 如果启用了版本隔离，使用隔离目录
+      if (versionInfo.isolatedDirs) {
+        // 确保隔离目录存在
+        await this.versionManager.ensureVersionIsolatedDirs(versionId);
+        
+        // 设置游戏工作目录为隔离目录
+        this.launchOptions.originalGameDir = this.launchOptions.gameDir; // 保存原始游戏目录
+        this.launchOptions.gameDir = versionInfo.isolatedDirs.root;
+        
+        // 创建必要的符号链接到共享资源
+        await this.createSharedResourceLinks(versionInfo.isolatedDirs, this.launchOptions.originalGameDir);
+      }
+      
       // 验证启动环境
       await this.validateLaunchEnvironment();
       
@@ -44,15 +64,56 @@ class GameLauncher {
       };
     }
   }
+  
+  /**
+   * 创建共享资源的符号链接
+   * @param {Object} isolatedDirs 隔离目录信息
+   * @param {string} originalGameDir 原始游戏目录
+   */
+  async createSharedResourceLinks(isolatedDirs, originalGameDir) {
+    try {
+      // 需要共享的目录列表
+      const sharedDirs = ['assets', 'libraries'];
+      
+      for (const dir of sharedDirs) {
+        const originalPath = path.join(originalGameDir, dir);
+        const linkPath = path.join(isolatedDirs.root, dir);
+        
+        // 如果目标链接不存在且原始目录存在，创建符号链接
+        if (!await fs.pathExists(linkPath) && await fs.pathExists(originalPath)) {
+          try {
+            if (process.platform === 'win32') {
+              // Windows系统使用mklink命令
+              const { execSync } = require('child_process');
+              execSync(`mklink /D "${linkPath}" "${originalPath}"`, { stdio: 'inherit' });
+            } else {
+              // Unix系统使用fs.symlink
+              await fs.symlink(originalPath, linkPath, 'dir');
+            }
+            console.log(`创建符号链接: ${linkPath} -> ${originalPath}`);
+          } catch (linkError) {
+            console.warn(`创建符号链接失败，复制目录代替: ${linkError.message}`);
+            // 如果符号链接创建失败，复制目录
+            await fs.copy(originalPath, linkPath, { overwrite: false });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('创建共享资源链接失败:', error);
+    }
+  }
 
   /**
    * 获取默认启动选项
    * @returns {Object} 默认启动选项
    */
   getDefaultLaunchOptions() {
+    const defaultGameDir = this.configManager.get('gameDir');
+    
     return {
       versionId: this.configManager.get('selectedVersion'),
-      gameDir: this.configManager.get('gameDir'),
+      gameDir: defaultGameDir,
+      originalGameDir: defaultGameDir, // 保存原始游戏目录用于版本隔离
       javaPath: this.configManager.get('javaPath'),
       javaArgs: this.configManager.get('javaArgs', '-Xmx2G'),
       resolution: this.configManager.get('resolution', { width: 854, height: 480 }),
@@ -192,6 +253,10 @@ class GameLauncher {
     const separator = process.platform === 'win32' ? ';' : ':';
     const classPath = [];
     
+    // 使用原始游戏目录查找库文件，确保即使在隔离模式下也能找到共享库
+    const actualLibrariesDir = this.launchOptions.originalGameDir ? 
+      path.join(this.launchOptions.originalGameDir, 'libraries') : librariesDir;
+    
     // 添加库文件到类路径
     if (versionInfo.libraries) {
       for (const library of versionInfo.libraries) {
@@ -204,7 +269,7 @@ class GameLauncher {
         // 添加库到类路径
         if (library.downloads && library.downloads.artifact) {
           const libPath = library.downloads.artifact.path;
-          const fullPath = path.join(librariesDir, libPath);
+          const fullPath = path.join(actualLibrariesDir, libPath);
           
           if (await fs.pathExists(fullPath)) {
             classPath.push(fullPath);
@@ -213,8 +278,12 @@ class GameLauncher {
       }
     }
     
+    // 使用原始游戏目录查找版本JAR文件
+    const versionsBaseDir = this.launchOptions.originalGameDir ? 
+      path.join(this.launchOptions.originalGameDir, 'versions') : path.join(gameDir, 'versions');
+    
     // 添加游戏JAR到类路径
-    const gameJarPath = path.join(gameDir, 'versions', versionId, `${versionId}.jar`);
+    const gameJarPath = path.join(versionsBaseDir, versionId, `${versionId}.jar`);
     if (await fs.pathExists(gameJarPath)) {
       classPath.push(gameJarPath);
     } else {
@@ -291,8 +360,12 @@ class GameLauncher {
    * @returns {Promise<Array>} 游戏参数数组
    */
   async buildGameArguments(versionInfo, options) {
-    const { versionId, gameDir, assetsDir, resolution, fullscreen } = options;
+    const { versionId, gameDir, resolution, fullscreen } = options;
     const args = [];
+    
+    // 使用原始游戏目录的assets文件夹
+    const assetsDir = this.launchOptions.originalGameDir ? 
+      path.join(this.launchOptions.originalGameDir, 'assets') : path.join(gameDir, 'assets');
     
     // 基础游戏参数
     args.push('--username', this.launchOptions.username);

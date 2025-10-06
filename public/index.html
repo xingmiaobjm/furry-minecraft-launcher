@@ -18,6 +18,54 @@
       color: #333333;
       overflow: hidden;
       user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* 窗口控制按钮样式 */
+    .window-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .window-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    #minimize {
+      background-color: #e5e7eb;
+      color: #333333;
+    }
+    
+    #minimize:hover {
+      background-color: #d1d5db;
+    }
+    
+    #maximize {
+      background-color: #e5e7eb;
+      color: #333333;
+    }
+    
+    #maximize:hover {
+      background-color: #d1d5db;
+    }
+    
+    #close {
+      background-color: #ef4444;
+      color: #ffffff;
+    }
+    
+    #close:hover {
+      background-color: #dc2626;
     }
     
     /* 主容器 */
@@ -38,10 +86,12 @@
       transition: width 0.3s ease;
       border-right: 1px solid #e5e7eb;
       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+      min-width: 80px; /* 调小伸缩范围 */
+      max-width: 180px;
     }
     
     .sidebar:hover {
-      width: 200px;
+      width: 180px;
     }
     
     .sidebar-item {
@@ -114,18 +164,268 @@
     
     /* 卡片样式 */
     .card {
-      background-color: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* 账号选择滚轮样式 */
+      .account-selector {
+        margin-bottom: 20px;
+        width: 300px;
+      }
+      
+      .account-display {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      
+      .account-display:hover {
+        border-color: #0099ff;
+      }
+      
+      #current-account {
+        font-weight: 500;
+      }
+      
+      .account-scroll-arrows {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .account-arrow {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        cursor: pointer;
+      }
+      
+      .account-up {
+        border-bottom: 6px solid #333;
+      }
+      
+      .account-down {
+        border-top: 6px solid #333;
+      }
+      
+      .account-arrow:hover {
+        opacity: 0.8;
+      }
+      
+      /* 启动列表二级菜单 */
+    .version-selector-container {
+      width: 300px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.3s ease;
     }
     
-    .card:hover {
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    .version-select-wrapper {
+      position: relative;
     }
+    
+    .version-secondary-menu {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    /* 启动按钮包装器和悬停显示的版本选择器 */
+    .launch-button-wrapper {
+      position: relative;
+      width: 300px;
+    }
+    
+    .launch-button {
+      width: 100%;
+      position: static !important;
+    }
+    
+    #version-selector-popup {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      margin-bottom: 10px;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+    }
+    
+    .launch-button-wrapper:hover #version-selector-popup {
+      display: block;
+    }
+    
+    /* 添加一个小箭头 */
+    #version-selector-popup::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      right: 20px;
+      margin-top: -1px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: #ffffff transparent transparent transparent;
+      border-bottom: none;
+      filter: drop-shadow(0 1px 0 #e5e7eb);
+    }
+      
+      /* 启动选项容器 */
+      .launch-options-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 300px;
+        margin-top: 20px;
+      }
+      
+      .launch-options {
+        display: flex;
+        gap: 15px;
+      }
+      
+      .checkbox-option {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+      }
+      
+      /* 版本列表样式 */
+      .version-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #e5e7eb;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .version-item:hover {
+        background-color: #f0f9ff;
+      }
+      
+      .version-item.selected {
+        background-color: #0099ff;
+        color: white;
+      }
+      
+      /* 任务中心样式 */
+      .task-center {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 999;
+      }
+      
+      .task-icon {
+        width: 40px;
+        height: 40px;
+        background-color: #0099ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      
+      .task-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .task-panel {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 0;
+        width: 350px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-height: 400px;
+        overflow: hidden;
+        flex-direction: column;
+      }
+      
+      .task-list {
+        padding: 10px;
+        overflow-y: auto;
+        max-height: 300px;
+      }
+      
+      .task-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f9fafb;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .task-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+      
+      .task-progress {
+        height: 4px;
+        background-color: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      
+      .task-progress-fill {
+        height: 100%;
+        background-color: #0099ff;
+        transition: width 0.3s;
+      }
+      
+      .no-tasks {
+        text-align: center;
+        color: #666;
+        padding: 30px;
+      }
+      
+      /* 下载标签样式 */
+      .download-tab:hover {
+        color: #0099ff;
+      }
+      
+      .download-tab.active {
+        color: #0099ff;
+        border-bottom-color: #0099ff;
+      }
     
     /* 按钮样式 */
     .btn {
@@ -243,9 +543,10 @@
     .launch-container {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: flex-start;
       min-height: 500px;
+      position: relative;
+      width: 100%;
     }
     
     .version-selector {
@@ -258,6 +559,9 @@
       padding: 20px;
       font-size: 20px;
       font-weight: bold;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
     }
     
     /* 设置页面样式 */
@@ -378,10 +682,26 @@
         width: 60px;
         background-color: #ffffff;
         border-right: 1px solid #e5e7eb;
+        min-width: 60px;
       }
       
       .sidebar:hover {
         width: 180px;
+      }
+      
+      .launch-options-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .launch-options {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .task-panel {
+        width: 90vw !important;
+        right: 5vw !important;
       }
       
       .sidebar-icon {
@@ -409,9 +729,37 @@
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- 侧边栏导航 -->
-    <aside class="sidebar">
+  <!-- 任务中心区域 -->
+    <div style="position: fixed; top: 0; right: 120px; display: flex; align-items: center; gap: 10px; padding: 10px 0; z-index: 1000; -webkit-app-region: no-drag;">
+      <!-- 任务中心 -->
+      <div class="task-center" id="task-center">
+        <div class="task-icon" id="task-icon">
+          <span class="task-badge" id="task-badge">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 窗口控制按钮区域 - 使用内联onclick处理点击事件 -->
+    <div id="window-controls" style="position: fixed; top: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: 10px 15px; z-index: 9999; -webkit-app-region: no-drag; pointer-events: auto;">
+      <!-- 窗口控制按钮 - 使用内联事件处理 -->
+      <button id="minimize" class="window-btn" style="pointer-events: auto; position: relative; z-index: 10000;" onclick="if(window.electronAPI && window.electronAPI.send){console.log('最小化窗口'); window.electronAPI.send('window-min');}">—</button>
+      <button id="maximize" class="window-btn" style="pointer-events: auto; position: relative; z-index: 10000;" onclick="if(window.electronAPI && window.electronAPI.send){console.log('最大化/还原窗口'); window.electronAPI.send('window-max');}">□</button>
+      <button id="close" class="window-btn" style="pointer-events: auto; position: relative; z-index: 10000;" onclick="if(window.electronAPI && window.electronAPI.send){console.log('关闭窗口'); window.electronAPI.send('window-close');}">✕</button>
+    </div>
+    
+    <div class="app-container">
+      <!-- 内容区域 -->
+      <div class="task-panel" id="task-panel">
+        <div class="task-panel-header">
+          <h3>任务中心</h3>
+          <button class="close-task-panel">×</button>
+        </div>
+        <div class="task-list" id="task-list">
+          <div class="no-tasks">暂无任务</div>
+        </div>
+      </div>
+      <!-- 侧边栏导航 -->
+      <aside class="sidebar" id="sidebar">
       <div class="sidebar-item active" data-page="launch">
         <div class="sidebar-icon"></div>
         <span class="sidebar-text">启动</span>
@@ -432,10 +780,10 @@
         <div class="sidebar-icon"></div>
         <span class="sidebar-text">其他</span>
       </div>
-    </aside>
-    
-    <!-- 主内容区域 -->
-    <main class="main-content">
+      </aside>
+      
+      <!-- 主内容区域 -->
+      <main class="main-content">
       <!-- 启动页面 -->
       <div class="page active" id="launch">
         <div class="card">
@@ -444,55 +792,176 @@
         </div>
         
         <div class="card launch-container">
-          <div class="version-selector">
-            <select class="select" id="versionSelect">
-              <option value="">请选择游戏版本</option>
-              <!-- 版本选项将通过JavaScript动态加载 -->
-            </select>
+          <!-- 账号选择滚轮 -->
+          <div class="account-selector">
+            <div class="account-display" id="account-display">
+              <span id="current-account">未登录</span>
+              <div class="account-scroll-arrows">
+                <div class="account-arrow account-up"></div>
+                <div class="account-arrow account-down"></div>
+              </div>
+            </div>
           </div>
           
-          <button class="btn btn-primary launch-button" id="launchButton">启动游戏</button>
+          <!-- 版本选择器现在位于启动按钮悬停时显示 -->
+          
+          <!-- 启动按钮和状态 -->
+          <div class="launch-options-container">
+            <div class="launch-options">
+              <label class="checkbox-option">
+                <input type="checkbox" id="fullscreenOption"> 全屏启动
+              </label>
+              <label class="checkbox-option">
+                <input type="checkbox" id="fixGameOption"> 固定游戏
+              </label>
+            </div>
+          </div>
+          
+          <!-- 右下角的启动按钮 -->
+          <div class="launch-button-wrapper" style="position: absolute; bottom: 20px; right: 20px;">
+            <button class="btn btn-primary launch-button" id="launchButton">启动游戏</button>
+            <!-- 启动列表二级菜单 -->
+            <div class="version-selector-container" id="version-selector-popup">
+              <label>版本列表</label>
+              <div class="version-select-wrapper">
+                <select class="select" id="versionSelect" multiple style="height: 150px;">
+                  <option value="">请选择游戏版本</option>
+                  <!-- 版本选项将通过JavaScript动态加载 -->
+                </select>
+                <div class="version-secondary-menu">
+                  <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 14px; margin-right: 5px;" id="refreshVersions">刷新</button>
+                  <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 14px; margin-right: 5px;" id="deleteVersion">删除</button>
+                  <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 14px;" id="verifyVersion">验证</button>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div class="status" id="launchStatus" style="margin-top: 20px; text-align: center;"></div>
         </div>
       </div>
       
+      <!-- 版本选择界面 -->
+      <div class="modal" id="versionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: #ffffff; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
+          <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #e5e7eb;">
+            <h3 style="margin: 0;">选择游戏版本</h3>
+            <button class="close-modal" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+          </div>
+          <div class="modal-body" style="padding: 20px; overflow-y: auto; flex: 1;">
+            <div class="version-list" id="versionModalList" style="max-height: 400px; overflow-y: auto;"></div>
+          </div>
+          <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; border-top: 1px solid #e5e7eb;">
+            <button class="btn btn-secondary" id="cancelVersionSelect">取消</button>
+            <button class="btn btn-primary" id="confirmVersionSelect">确认启动</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mod加载器选择界面 -->
+      <div class="modal" id="modLoaderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: #ffffff; border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column;">
+          <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #e5e7eb;">
+            <h3 style="margin: 0;">安装Mod加载器</h3>
+            <button class="close-modal" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+          </div>
+          <div class="modal-body" style="padding: 20px; overflow-y: auto; flex: 1;">
+            <div class="mod-loader-selection" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+              <label class="radio-option" style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <input type="radio" name="modLoader" value="none" checked> 不安装Mod加载器
+              </label>
+              <label class="radio-option" style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <input type="radio" name="modLoader" value="forge"> Forge
+              </label>
+              <label class="radio-option" style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <input type="radio" name="modLoader" value="fabric"> Fabric
+              </label>
+              <label class="radio-option" style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <input type="radio" name="modLoader" value="quilt"> Quilt
+              </label>
+            </div>
+            <div class="mod-loader-version" id="modLoaderVersion">
+              <label>选择版本</label>
+              <select class="select" id="modLoaderVersionSelect"></select>
+            </div>
+          </div>
+          <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; border-top: 1px solid #e5e7eb;">
+            <button class="btn btn-secondary" id="cancelModLoader">取消</button>
+            <button class="btn btn-primary" id="confirmModLoader">确认安装</button>
+          </div>
+        </div>
+      </div>
+      
       <!-- 下载页面 -->
       <div class="page" id="download">
-        <div class="card">
-          <h2>下载游戏版本</h2>
-          
-          <div class="setting-item">
-            <label class="setting-label">下载源</label>
-            <select class="select" id="downloadSource">
-              <option value="official">官方源</option>
-              <option value="bmclapi">BMCLAPI</option>
-              <option value="mcbbs">MCBBS</option>
-            </select>
+        <!-- 下载页面标签 -->
+        <div class="download-tabs" style="display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 20px;">
+          <div class="download-tab active" data-tab="versions" style="padding: 10px 20px; cursor: pointer; color: #333; border-bottom: 2px solid transparent;">版本列表</div>
+          <div class="download-tab" data-tab="options" style="padding: 10px 20px; cursor: pointer; color: #333; border-bottom: 2px solid transparent;">下载选项</div>
+          <div class="download-tab" data-tab="queue" style="padding: 10px 20px; cursor: pointer; color: #333; border-bottom: 2px solid transparent;">下载队列</div>
+        </div>
+        
+        <!-- 版本列表 -->
+        <div class="download-content active" id="download-versions" style="display: block;">
+          <div class="card">
+            <h2>下载游戏版本</h2>
+            
+            <div class="setting-item">
+              <label class="setting-label">游戏版本</label>
+              <select class="select" id="versionList">
+                <option value="">正在加载版本列表...</option>
+                <!-- 版本列表将通过JavaScript动态加载 -->
+              </select>
+            </div>
+            
+            <button class="btn btn-primary" id="downloadButton">下载选中版本</button>
           </div>
-          
-          <div class="setting-item">
-            <label class="setting-label">游戏版本</label>
-            <select class="select" id="versionList">
-              <option value="">正在加载版本列表...</option>
-              <!-- 版本列表将通过JavaScript动态加载 -->
-            </select>
+        </div>
+        
+        <!-- 下载选项 -->
+        <div class="download-content" id="download-options" style="display: none;">
+          <div class="card">
+            <h2>下载选项</h2>
+            
+            <div class="setting-item">
+              <label class="setting-label">下载源</label>
+              <select class="select" id="downloadSource">
+                <option value="official">官方源</option>
+                <option value="bmclapi">BMCLAPI</option>
+                <option value="mcbbs">MCBBS</option>
+              </select>
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">最大并发下载数</label>
+              <input type="number" class="input" id="maxConcurrentDownloads" min="1" max="10" value="3">
+            </div>
+            
+            <div class="setting-item">
+              <label class="setting-label">下载超时（秒）</label>
+              <input type="number" class="input" id="downloadTimeout" min="10" max="300" value="60">
+            </div>
+            
+            <button class="btn btn-primary" id="saveDownloadOptions">保存选项</button>
           </div>
-          
-          <button class="btn btn-primary" id="downloadButton">下载选中版本</button>
         </div>
         
         <!-- 下载队列 -->
-        <div class="card">
-          <h3>下载队列</h3>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: 0%"></div>
+        <div class="download-content" id="download-queue" style="display: none;">
+          <div class="card">
+            <h3>下载队列</h3>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="downloadProgress">等待开始下载...</div>
+            
+            <ul class="list" id="downloadQueue">
+              <!-- 下载队列项将通过JavaScript动态加载 -->
+              <li>暂无下载任务</li>
+            </ul>
+            
+            <button class="btn btn-secondary" id="cancelAllDownloads">取消所有下载</button>
           </div>
-          <div id="downloadProgress">等待开始下载...</div>
-          
-          <ul class="list" id="downloadQueue">
-            <!-- 下载队列项将通过JavaScript动态加载 -->
-          </ul>
         </div>
       </div>
       
@@ -522,8 +991,39 @@
         </div>
         
         <div class="card">
+          <h3>房间操作</h3>
+          <button class="btn btn-danger" id="leaveRoomButton">离开房间</button>
+        </div>
+        
+        <div class="card">
           <h3>房间状态</h3>
           <div id="roomStatus">未连接到房间</div>
+          <div id="roomInfo" style="margin-top: 10px; display: none;">
+            <p><strong>房间ID:</strong> <span id="currentRoomId"></span></p>
+            <p><strong>房间名称:</strong> <span id="currentRoomName"></span></p>
+            <p><strong>房间类型:</strong> <span id="currentRoomType"></span></p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3>房间玩家</h3>
+          <ul class="list" id="playerList">
+            <!-- 玩家列表将通过JavaScript动态加载 -->
+            <li>暂无玩家</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3>房间聊天</h3>
+          <div class="chat-container">
+            <div id="chatMessages" class="chat-messages" style="height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+              <!-- 聊天消息将通过JavaScript动态加载 -->
+            </div>
+            <div class="chat-input-container" style="display: flex; gap: 10px;">
+              <input type="text" class="input" id="chatInput" placeholder="输入消息..." style="flex-grow: 1;">
+              <button class="btn btn-secondary" id="sendChatButton">发送</button>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -612,6 +1112,98 @@
   </div>
   
   <script>
+    // 调试日志函数
+    function debugLog(message, level = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      console.log(`[${timestamp}] [P2P Debug]`, message);
+      
+      const logDiv = document.createElement('div');
+      let color = '#888'; // 默认灰色
+      let prefix = '[INFO]';
+      
+      // 根据级别设置颜色和前缀
+      if (level === 'error') {
+        color = '#ff4444';
+        prefix = '[ERROR]';
+      } else if (level === 'success') {
+        color = '#44ff44';
+        prefix = '[SUCCESS]';
+      } else if (level === 'warning') {
+        color = '#ffff44';
+        prefix = '[WARNING]';
+      }
+      
+      logDiv.textContent = `[${timestamp}] ${prefix} ${message}`;
+      logDiv.style.color = color;
+      logDiv.style.fontSize = '12px';
+      logDiv.style.marginBottom = '4px';
+      logDiv.style.whiteSpace = 'pre-wrap';
+      
+      const logsContainer = document.getElementById('debug-logs');
+      if (logsContainer) {
+        logsContainer.appendChild(logDiv);
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+        // 限制日志数量
+        if (logsContainer.children.length > 50) {
+          logsContainer.removeChild(logsContainer.firstChild);
+        }
+      }
+    }
+    
+    // 添加调试面板
+    function setupDebugPanel() {
+      const debugPanel = document.createElement('div');
+      debugPanel.id = 'debug-panel';
+      debugPanel.style.position = 'fixed';
+      debugPanel.style.bottom = '10px';
+      debugPanel.style.right = '10px';
+      debugPanel.style.width = '400px';
+      debugPanel.style.height = '300px';
+      debugPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      debugPanel.style.border = '1px solid #333';
+      debugPanel.style.borderRadius = '5px';
+      debugPanel.style.color = 'white';
+      debugPanel.style.padding = '10px';
+      debugPanel.style.zIndex = '1000';
+      debugPanel.style.fontFamily = 'monospace';
+      
+      const debugHeader = document.createElement('div');
+      debugHeader.textContent = 'P2P 调试日志';
+      debugHeader.style.fontWeight = 'bold';
+      debugHeader.style.marginBottom = '10px';
+      debugHeader.style.borderBottom = '1px solid #444';
+      debugHeader.style.paddingBottom = '5px';
+      
+      const debugLogs = document.createElement('div');
+      debugLogs.id = 'debug-logs';
+      debugLogs.style.overflowY = 'auto';
+      debugLogs.style.height = 'calc(100% - 20px)';
+      debugLogs.style.fontSize = '12px';
+      
+      debugPanel.appendChild(debugHeader);
+      debugPanel.appendChild(debugLogs);
+      
+      // 添加显示/隐藏按钮
+      const toggleButton = document.createElement('button');
+      toggleButton.textContent = '隐藏调试';
+      toggleButton.onclick = function() {
+        debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+        toggleButton.textContent = debugPanel.style.display === 'none' ? '显示调试' : '隐藏调试';
+      };
+      toggleButton.style.position = 'fixed';
+      toggleButton.style.bottom = '10px';
+      toggleButton.style.right = '420px';
+      toggleButton.style.zIndex = '1001';
+      
+      document.body.appendChild(debugPanel);
+      document.body.appendChild(toggleButton);
+      
+      debugLog('调试面板已初始化');
+    }
+    
+    // 初始化调试面板
+    setupDebugPanel();
+    
     // 页面导航逻辑
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -707,7 +1299,7 @@
       // 这里将通过IPC发送下载请求
     });
     
-    // 创建/加入房间
+    // 创建/加入/离开房间
     document.getElementById('createRoomButton').addEventListener('click', () => {
       const roomName = document.getElementById('roomName').value;
       if (!roomName) {
@@ -716,7 +1308,8 @@
       }
       
       document.getElementById('roomStatus').textContent = `正在创建房间: ${roomName}`;
-      // 这里将通过IPC发送创建房间请求
+      // 通过IPC发送创建房间请求
+      window.events.send('p2p-create-room', { roomName });
     });
     
     document.getElementById('joinRoomButton').addEventListener('click', () => {
@@ -727,8 +1320,202 @@
       }
       
       document.getElementById('roomStatus').textContent = `正在加入房间: ${roomId}`;
-      // 这里将通过IPC发送加入房间请求
+      // 通过IPC发送加入房间请求
+      window.events.send('p2p-join-room', { roomId });
     });
+    
+    document.getElementById('leaveRoomButton').addEventListener('click', () => {
+      document.getElementById('roomStatus').textContent = '正在离开房间...';
+      const roomId = document.getElementById('currentRoomId')?.textContent;
+      // 通过IPC发送离开房间请求
+      window.events.send('p2p-leave-room', { roomId });
+    });
+    
+    // 发送聊天消息
+    document.getElementById('sendChatButton').addEventListener('click', () => {
+      const message = document.getElementById('chatInput').value;
+      if (!message.trim()) return;
+      
+      const roomId = document.getElementById('currentRoomId')?.textContent;
+      window.events.send('p2p-send-message', { roomId, message });
+      document.getElementById('chatInput').value = '';
+    });
+    
+    // 按Enter发送聊天消息
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('sendChatButton').click();
+      }
+    });
+    
+    let currentRoomId = null;
+    
+    // 监听P2P房间事件
+    window.events.on('p2p-room-created', (event, data) => {
+      debugLog(`房间创建成功: ${data.roomName} (ID: ${data.roomId})`);
+      document.getElementById('roomStatus').textContent = '房间创建成功！';
+      document.getElementById('roomInfo').style.display = 'block';
+      document.getElementById('currentRoomId').textContent = data.roomId;
+      document.getElementById('currentRoomName').textContent = data.roomName;
+      document.getElementById('currentRoomType').textContent = '房主';
+      currentRoomId = data.roomId;
+      updatePlayerList(data.players);
+      addChatMessage({senderUsername: '系统', content: '房间创建成功', timestamp: new Date().toISOString()});
+    });
+    
+    window.events.on('p2p-room-joined', (event, data) => {
+      debugLog(`成功加入房间: ${data.roomName} (ID: ${data.roomId})`);
+      document.getElementById('roomStatus').textContent = '成功加入房间！';
+      document.getElementById('roomInfo').style.display = 'block';
+      document.getElementById('currentRoomId').textContent = data.roomId;
+      document.getElementById('currentRoomName').textContent = data.roomName;
+      document.getElementById('currentRoomType').textContent = '成员';
+      currentRoomId = data.roomId;
+      updatePlayerList(data.players);
+      addChatMessage({senderUsername: '系统', content: '成功加入房间', timestamp: new Date().toISOString()});
+    });
+    
+    window.events.on('p2p-room-left', () => {
+      debugLog(`离开房间 ${currentRoomId}`);
+      document.getElementById('roomStatus').textContent = '未连接到房间';
+      document.getElementById('roomInfo').style.display = 'none';
+      document.getElementById('playerList').innerHTML = '<li>暂无玩家</li>';
+      document.getElementById('chatMessages').innerHTML = ''; // 清空聊天记录
+      currentRoomId = null;
+    });
+    
+    window.events.on('p2p-room-error', (event, error) => {
+      debugLog(`房间错误: ${error.message}`, 'error');
+      document.getElementById('roomStatus').textContent = `错误: ${error.message}`;
+    });
+    
+    window.events.on('p2p-player-joined', (event, data) => {
+      debugLog(`玩家加入房间 [${currentRoomId}]: ${data.username}`);
+      updatePlayerList(data.players);
+      addChatMessage(`${data.username} 加入了房间`);
+    });
+    
+    window.events.on('p2p-player-left', (event, data) => {
+      debugLog(`玩家离开房间 [${currentRoomId}]: ${data.username}`);
+      updatePlayerList(data.players);
+      addChatMessage(`${data.username} 离开了房间`);
+    });
+    
+    window.events.on('p2p-message-received', (event, data) => {
+      debugLog(`收到房间消息 [${currentRoomId}]: ${data.username}: ${data.message}`);
+      addChatMessage(`${data.username}: ${data.message}`);
+    });
+    
+    // 监听P2P连接事件
+    window.events.on('p2p-peer-connected', (event, data) => {
+      debugLog(`P2P连接已建立 [${currentRoomId}]: ${data.player.username}`, 'success');
+      addChatMessage({senderUsername: '系统', content: `玩家 ${data.player.username} 已连接`, timestamp: new Date().toISOString()});
+    });
+    
+    // 监听P2P断开连接事件
+    window.events.on('p2p-peer-disconnected', (event, data) => {
+      debugLog(`P2P连接已断开 [${currentRoomId}]: ${data.player.username}`);
+      addChatMessage({senderUsername: '系统', content: `玩家 ${data.player.username} 已断开连接`, timestamp: new Date().toISOString()});
+    });
+    
+    // 监听P2P连接错误事件
+    window.events.on('p2p-peer-error', (event, data) => {
+      debugLog(`P2P连接错误 [${currentRoomId}]: ${data.error}`, 'error');
+      addChatMessage({senderUsername: '系统', content: `连接错误: ${data.error}`, timestamp: new Date().toISOString()});
+    });
+    
+    // 监听玩家列表更新
+    window.events.on('p2p-player-list-updated', (event, data) => {
+      debugLog(`玩家列表更新 [${currentRoomId}]: ${(data.players || []).length} 名玩家`);
+      updatePlayerList(data.players);
+    });
+    
+    // 监听房间关闭事件
+    window.events.on('p2p-room-closed', (event, data) => {
+      debugLog(`房间已关闭 [${data.roomId}]: ${data.reason}`, 'warning');
+      document.getElementById('roomStatus').textContent = `房间已关闭: ${data.reason}`;
+      addChatMessage({senderUsername: '系统', content: `房间已关闭: ${data.reason}`, timestamp: new Date().toISOString()});
+      setTimeout(() => {
+        document.getElementById('roomStatus').textContent = '未连接到房间';
+        document.getElementById('roomInfo').style.display = 'none';
+        document.getElementById('playerList').innerHTML = '<li>暂无玩家</li>';
+        document.getElementById('chatMessages').innerHTML = ''; // 清空聊天记录
+        currentRoomId = null;
+      }, 3000);
+    });
+    
+    // 为发送聊天消息按钮添加更详细的调试日志
+    const sendChatButton = document.getElementById('sendChatButton');
+    if (sendChatButton) {
+      const originalOnClick = sendChatButton.onclick;
+      sendChatButton.onclick = function() {
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput ? chatInput.value : '无法获取消息内容';
+        debugLog(`发送消息到房间 ${currentRoomId}: ${message}`);
+        if (originalOnClick) {
+          originalOnClick.apply(this, arguments);
+        } else {
+          // 保留原有功能
+          if (!message.trim()) return;
+          window.events.send('p2p-send-message', { roomId: currentRoomId, message });
+          chatInput.value = '';
+        }
+      };
+    }
+    
+    // 为离开房间按钮添加更详细的调试日志
+    const leaveRoomButton = document.getElementById('leaveRoomButton');
+    if (leaveRoomButton) {
+      const originalOnClick = leaveRoomButton.onclick;
+      leaveRoomButton.onclick = function() {
+        debugLog(`离开房间 ${currentRoomId}`);
+        if (originalOnClick) {
+          originalOnClick.apply(this, arguments);
+        } else {
+          // 保留原有功能
+          document.getElementById('roomStatus').textContent = '正在离开房间...';
+          window.events.send('p2p-leave-room', { roomId: currentRoomId });
+        }
+      };
+    }
+    
+    // 更新玩家列表
+    function updatePlayerList(players) {
+      const playerList = document.getElementById('playerList');
+      playerList.innerHTML = '';
+      
+      if (players && players.length > 0) {
+        players.forEach(player => {
+          const li = document.createElement('li');
+          li.textContent = `${player.username}${player.isHost ? ' (房主)' : ''}`;
+          playerList.appendChild(li);
+        });
+      } else {
+        const li = document.createElement('li');
+        li.textContent = '暂无玩家';
+        playerList.appendChild(li);
+      }
+    }
+    
+    // 添加聊天消息
+    function addChatMessage(message) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      
+      if (typeof message === 'string') {
+        // 处理旧格式的字符串消息
+        messageDiv.textContent = message;
+      } else if (typeof message === 'object' && message !== null) {
+        // 处理新格式的对象消息
+        const timestamp = new Date(message.timestamp).toLocaleTimeString();
+        messageDiv.innerHTML = `<strong>${message.senderUsername} [${timestamp}]</strong>: ${message.content}`;
+      }
+      
+      messageDiv.style.marginBottom = '5px';
+      chatMessages.appendChild(messageDiv);
+      // 滚动到底部
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
     
     // 初始化函数
     async function init() {
@@ -748,6 +1535,426 @@
     
     // 页面加载完成后初始化
     window.addEventListener('DOMContentLoaded', init);
+    
+    // 账号选择滚轮功能
+    let currentAccountIndex = 0;
+    let accounts = [];
+    
+    function loadAccounts() {
+      // 模拟获取账号列表
+      accounts = ['未登录', 'Steve', 'Alex', 'Herobrine'];
+      updateAccountDisplay();
+    }
+    
+    function updateAccountDisplay() {
+      document.getElementById('current-account').textContent = accounts[currentAccountIndex];
+    }
+    
+    // 账号选择滚轮事件
+    document.querySelector('.account-up').addEventListener('click', () => {
+      currentAccountIndex = (currentAccountIndex - 1 + accounts.length) % accounts.length;
+      updateAccountDisplay();
+      debugLog('切换账号向上:', accounts[currentAccountIndex]);
+    });
+    
+    document.querySelector('.account-down').addEventListener('click', () => {
+      currentAccountIndex = (currentAccountIndex + 1) % accounts.length;
+      updateAccountDisplay();
+      debugLog('切换账号向下:', accounts[currentAccountIndex]);
+    });
+    
+    // 账号选择器鼠标滚轮事件
+    document.querySelector('.account-display').addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        // 向上滚动
+        currentAccountIndex = (currentAccountIndex - 1 + accounts.length) % accounts.length;
+      } else {
+        // 向下滚动
+        currentAccountIndex = (currentAccountIndex + 1) % accounts.length;
+      }
+      updateAccountDisplay();
+    });
+    
+    // 启动按钮版本选择界面
+    let fixedGameVersion = null;
+    
+    const originalLaunchButtonClick = document.getElementById('launchButton').onclick;
+    document.getElementById('launchButton').onclick = (e) => {
+      const fixGame = document.getElementById('fixGameOption').checked;
+      
+      if (fixGame && fixedGameVersion) {
+        // 固定游戏时快速启动
+        debugLog('快速启动固定版本:', fixedGameVersion);
+        launchGame(fixedGameVersion);
+      } else {
+        // 打开版本选择界面
+        openVersionModal();
+      }
+    };
+    
+    // 启动按钮右键菜单
+    document.getElementById('launchButton').addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      // 右键再次打开版本列表
+      openVersionModal();
+    });
+    
+    function openVersionModal() {
+      const versionModal = document.getElementById('versionModal');
+      const versionList = document.getElementById('versionModalList');
+      
+      // 清空并加载版本列表
+      versionList.innerHTML = '';
+      
+      // 模拟版本数据
+      const versions = ['1.20.4', '1.20.1', '1.19.4', '1.19.2', '1.18.2', '1.17.1'];
+      
+      versions.forEach(version => {
+        const versionItem = document.createElement('div');
+        versionItem.className = 'version-item';
+        versionItem.textContent = version;
+        
+        versionItem.addEventListener('click', () => {
+          document.querySelectorAll('.version-item').forEach(item => {
+            item.classList.remove('selected');
+          });
+          versionItem.classList.add('selected');
+        });
+        
+        versionList.appendChild(versionItem);
+      });
+      
+      versionModal.style.display = 'flex';
+      debugLog('打开版本选择界面');
+    }
+    
+    // 关闭版本选择界面
+    document.querySelector('#versionModal .close-modal').addEventListener('click', () => {
+      document.getElementById('versionModal').style.display = 'none';
+    });
+    
+    document.getElementById('cancelVersionSelect').addEventListener('click', () => {
+      document.getElementById('versionModal').style.display = 'none';
+    });
+    
+    // 确认版本选择
+    document.getElementById('confirmVersionSelect').addEventListener('click', () => {
+      const selectedVersion = document.querySelector('#versionModalList .version-item.selected');
+      if (selectedVersion) {
+        const version = selectedVersion.textContent;
+        debugLog('确认选择版本:', version);
+        
+        // 检查是否需要固定游戏
+        if (document.getElementById('fixGameOption').checked) {
+          fixedGameVersion = version;
+          debugLog('固定游戏版本:', fixedGameVersion);
+        }
+        
+        // 启动游戏
+        launchGame(version);
+        
+        // 关闭模态框
+        document.getElementById('versionModal').style.display = 'none';
+      }
+    });
+    
+    function launchGame(version) {
+      const fullscreen = document.getElementById('fullscreenOption').checked;
+      const status = document.getElementById('launchStatus');
+      
+      status.textContent = `正在启动 Minecraft ${version}...`;
+      debugLog(`启动游戏: 版本=${version}, 全屏=${fullscreen}, 账号=${accounts[currentAccountIndex]}`);
+      
+      // 创建任务中心任务
+      addTask(`启动 Minecraft ${version}`, 100);
+      
+      // 模拟启动过程
+      setTimeout(() => {
+        status.textContent = `Minecraft ${version} 启动成功！`;
+        updateTaskProgress(`启动 Minecraft ${version}`, 100);
+        
+        // 3秒后清除状态
+        setTimeout(() => {
+          status.textContent = '';
+          removeTask(`启动 Minecraft ${version}`);
+        }, 3000);
+      }, 1500);
+    }
+    
+    // 任务中心功能
+    const tasks = new Map();
+    
+    function addTask(title, totalProgress = 0) {
+      const taskId = title;
+      tasks.set(taskId, { title, progress: 0, totalProgress });
+      updateTaskCenter();
+      debugLog('添加任务:', title);
+    }
+    
+    function updateTaskProgress(title, progress) {
+      const taskId = title;
+      if (tasks.has(taskId)) {
+        const task = tasks.get(taskId);
+        task.progress = progress;
+        updateTaskCenter();
+      }
+    }
+    
+    function removeTask(title) {
+      const taskId = title;
+      tasks.delete(taskId);
+      updateTaskCenter();
+      debugLog('移除任务:', title);
+    }
+    
+    function updateTaskCenter() {
+      const taskList = document.getElementById('task-list');
+      const taskBadge = document.getElementById('task-badge');
+      
+      taskBadge.textContent = tasks.size;
+      
+      if (tasks.size === 0) {
+        taskList.innerHTML = '<div class="no-tasks">暂无任务</div>';
+        return;
+      }
+      
+      taskList.innerHTML = '';
+      tasks.forEach((task, id) => {
+        const taskItem = document.createElement('div');
+        taskItem.className = 'task-item';
+        taskItem.innerHTML = `
+          <div class="task-title">${task.title}</div>
+          <div class="task-progress">
+            <div class="task-progress-fill" style="width: ${task.progress}%"></div>
+          </div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">${task.progress}%</div>
+        `;
+        taskList.appendChild(taskItem);
+      });
+    }
+    
+    // 任务中心显示/隐藏
+    document.getElementById('task-icon').addEventListener('click', () => {
+      const taskPanel = document.getElementById('task-panel');
+      taskPanel.style.display = taskPanel.style.display === 'flex' ? 'none' : 'flex';
+    });
+    
+    document.querySelector('.close-task-panel').addEventListener('click', () => {
+      document.getElementById('task-panel').style.display = 'none';
+    });
+    
+    // 点击任务面板外部关闭
+    document.addEventListener('click', (e) => {
+      const taskCenter = document.getElementById('task-center');
+      const taskPanel = document.getElementById('task-panel');
+      
+      if (!taskCenter.contains(e.target) && taskPanel.style.display === 'flex') {
+        taskPanel.style.display = 'none';
+      }
+    });
+    
+    // 下载页面标签切换
+    document.querySelectorAll('.download-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-tab');
+        
+        // 更新标签状态
+        document.querySelectorAll('.download-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+        
+        // 更新内容显示
+        document.querySelectorAll('.download-content').forEach(content => {
+          content.style.display = 'none';
+          content.classList.remove('active');
+        });
+        
+        const activeContent = document.getElementById(`download-${tabName}`);
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+        
+        debugLog('切换下载标签:', tabName);
+      });
+    });
+    
+    // 保存下载选项
+    document.getElementById('saveDownloadOptions').addEventListener('click', () => {
+      const downloadSource = document.getElementById('downloadSource').value;
+      const maxConcurrentDownloads = document.getElementById('maxConcurrentDownloads').value;
+      const downloadTimeout = document.getElementById('downloadTimeout').value;
+      
+      debugLog('保存下载选项:', { downloadSource, maxConcurrentDownloads, downloadTimeout });
+      
+      // 模拟保存成功提示
+      const statusEl = document.createElement('div');
+      statusEl.textContent = '下载选项保存成功！';
+      statusEl.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: white; padding: 10px 20px; border-radius: 4px; z-index: 1001;';
+      document.body.appendChild(statusEl);
+      
+      setTimeout(() => {
+        statusEl.remove();
+      }, 3000);
+    });
+    
+    // 取消所有下载
+    document.getElementById('cancelAllDownloads').addEventListener('click', () => {
+      debugLog('取消所有下载');
+      document.getElementById('downloadQueue').innerHTML = '<li>暂无下载任务</li>';
+      document.querySelector('.progress-fill').style.width = '0%';
+      document.getElementById('downloadProgress').textContent = '等待开始下载...';
+    });
+    
+    // 版本选择二级菜单功能
+    document.getElementById('refreshVersions').addEventListener('click', () => {
+      debugLog('刷新版本列表');
+      // 这里可以添加刷新版本的逻辑
+    });
+    
+    document.getElementById('deleteVersion').addEventListener('click', () => {
+      const versionSelect = document.getElementById('versionSelect');
+      const selectedVersion = versionSelect.options[versionSelect.selectedIndex]?.value;
+      
+      if (selectedVersion) {
+        debugLog('删除版本:', selectedVersion);
+        // 这里可以添加删除版本的逻辑
+      } else {
+        alert('请先选择要删除的版本');
+      }
+    });
+    
+    document.getElementById('verifyVersion').addEventListener('click', () => {
+      const versionSelect = document.getElementById('versionSelect');
+      const selectedVersion = versionSelect.options[versionSelect.selectedIndex]?.value;
+      
+      if (selectedVersion) {
+        debugLog('验证版本:', selectedVersion);
+        addTask(`验证版本 ${selectedVersion}`, 0);
+        
+        // 模拟验证过程
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10;
+          updateTaskProgress(`验证版本 ${selectedVersion}`, progress);
+          
+          if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              removeTask(`验证版本 ${selectedVersion}`);
+            }, 2000);
+          }
+        }, 300);
+      } else {
+        alert('请先选择要验证的版本');
+      }
+    });
+    
+    // 下载版本后打开Mod加载器选择
+    const originalDownloadButtonClick = document.getElementById('downloadButton').onclick;
+    document.getElementById('downloadButton').onclick = () => {
+      const versionList = document.getElementById('versionList');
+      const selectedVersion = versionList.value;
+      
+      if (selectedVersion) {
+        debugLog('下载版本:', selectedVersion);
+        
+        // 创建下载任务
+        addTask(`下载版本 ${selectedVersion}`, 0);
+        
+        // 模拟下载过程
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 5;
+          updateTaskProgress(`下载版本 ${selectedVersion}`, progress);
+          
+          if (progress >= 100) {
+            clearInterval(interval);
+            
+            // 下载完成后打开Mod加载器选择界面
+            setTimeout(() => {
+              document.getElementById('modLoaderModal').style.display = 'flex';
+              removeTask(`下载版本 ${selectedVersion}`);
+            }, 1000);
+          }
+        }, 200);
+      } else {
+        alert('请先选择要下载的版本');
+      }
+    };
+    
+    // Mod加载器模态框控制
+    document.querySelector('#modLoaderModal .close-modal').addEventListener('click', () => {
+      document.getElementById('modLoaderModal').style.display = 'none';
+    });
+    
+    document.getElementById('cancelModLoader').addEventListener('click', () => {
+      document.getElementById('modLoaderModal').style.display = 'none';
+    });
+    
+    document.getElementById('confirmModLoader').addEventListener('click', () => {
+      const selectedLoader = document.querySelector('input[name="modLoader"]:checked').value;
+      
+      if (selectedLoader !== 'none') {
+        const loaderVersion = document.getElementById('modLoaderVersionSelect').value;
+        debugLog('安装Mod加载器:', selectedLoader, '版本:', loaderVersion);
+        
+        // 创建安装任务
+        addTask(`安装${selectedLoader} ${loaderVersion}`, 0);
+        
+        // 模拟安装过程
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10;
+          updateTaskProgress(`安装${selectedLoader} ${loaderVersion}`, progress);
+          
+          if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              removeTask(`安装${selectedLoader} ${loaderVersion}`);
+            }, 1000);
+          }
+        }, 300);
+      }
+      
+      document.getElementById('modLoaderModal').style.display = 'none';
+    });
+    
+    // Mod加载器选择时更新版本列表
+    document.querySelectorAll('input[name="modLoader"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const loader = e.target.value;
+        const versionSelect = document.getElementById('modLoaderVersionSelect');
+        
+        // 根据选择的加载器更新版本选项
+        if (loader === 'none') {
+          versionSelect.innerHTML = '';
+          versionSelect.disabled = true;
+        } else {
+          versionSelect.disabled = false;
+          // 模拟不同加载器的版本列表
+          const versions = {
+            'forge': ['47.2.0', '46.0.51', '45.2.21'],
+            'fabric': ['0.14.22', '0.14.21', '0.14.20'],
+            'quilt': ['0.19.0', '0.18.2', '0.18.1']
+          };
+          
+          versionSelect.innerHTML = versions[loader].map(v => `<option value="${v}">${v}</option>`).join('');
+        }
+      });
+    });
+    
+    // 初始化
+    function initialize() {
+      loadAccounts();
+      
+      // 窗口控制按钮已通过内联onclick属性处理
+      debugLog('初始化完成');
+    }
+    
+    // 页面加载完成后初始化
+    window.addEventListener('load', initialize);
   </script>
-</body>
+    </div>
+  </body>
 </html>
