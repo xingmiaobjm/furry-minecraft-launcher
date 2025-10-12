@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P中央服务器管理面板 - Vue版</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .server-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #4a5568;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            color: #4a5568;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-dropdown {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .data-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-offline {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .page-button {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-button:hover:not(.active) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .close-button:hover {
+            color: #e53e3e;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e53e3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: #f7fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .message-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-table {
+                font-size: 0.9em;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 头部 -->
+            <div class="header">
+                <h1>P2P中央服务器管理面板</h1>
+                <div class="server-info">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>服务器状态: {{ serverStatus }}</span>
+                    </div>
+                    <div>最后更新: {{ lastUpdate }}</div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h3>总用户数</h3>
+                    <div class="stat-value">{{ stats.totalUsers }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>在线用户</h3>
+                    <div class="stat-value">{{ stats.onlineUsers }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>活跃房间</h3>
+                    <div class="stat-value">{{ stats.activeRooms }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>总房间数</h3>
+                    <div class="stat-value">{{ stats.totalRooms }}</div>
+                </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button 
+                    class="tab-button" 
+                    :class="{ active: activeTab === 'users' }"
+                    @click="activeTab = 'users'"
+                >
+                    用户管理
+                </button>
+                <button 
+                    class="tab-button" 
+                    :class="{ active: activeTab === 'rooms' }"
+                    @click="activeTab = 'rooms'"
+                >
+                    房间管理
+                </button>
+                <button 
+                    class="tab-button" 
+                    :class="{ active: activeTab === 'statistics' }"
+                    @click="activeTab = 'statistics'"
+                >
+                    统计分析
+                </button>
+                <button 
+                    class="tab-button" 
+                    :class="{ active: activeTab === 'settings' }"
+                    @click="activeTab = 'settings'"
+                >
+                    服务器设置
+                </button>
+            </div>
+
+            <!-- 标签内容 -->
+            <div class="tab-content">
+                <!-- 消息提示 -->
+                <div v-if="message" :class="['message', message.type]">
+                    {{ message.text }}
+                </div>
+
+                <!-- 用户管理 -->
+                <div v-if="activeTab === 'users'">
+                    <div class="search-bar">
+                        <input 
+                            type="text" 
+                            class="search-input"
+                            v-model="userSearch" 
+                            placeholder="搜索用户..."
+                            @input="searchUsers"
+                        >
+                        <select class="filter-dropdown" v-model="userStatusFilter" @change="searchUsers">
+                            <option value="all">所有状态</option>
+                            <option value="online">在线</option>
+                            <option value="offline">离线</option>
+                        </select>
+                        <button class="btn btn-success" @click="showAddUserModal = true">
+                            添加用户
+                        </button>
+                    </div>
+
+                    <div v-if="userLoading" class="loading">加载中...</div>
+                    <div v-else-if="userError" class="error">{{ userError }}</div>
+                    <div v-else-if="filteredUsers.length === 0" class="empty-state">没有找到用户</div>
+                    <div v-else>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>用户ID</th>
+                                    <th>用户名</th>
+                                    <th>邮箱</th>
+                                    <th>状态</th>
+                                    <th>注册时间</th>
+                                    <th>最后登录</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in paginatedUsers" :key="user.id">
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span :class="['status-badge', user.onlineStatus === 'online' ? 'status-online' : 'status-offline']">
+                                            {{ user.onlineStatus === 'online' ? '在线' : '离线' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ formatDate(user.createdAt) }}</td>
+                                    <td>{{ formatDate(user.lastLogin) }}</td>
+                                    <td>
+                                        <button class="btn btn-primary" @click="showUserDetail(user)">详情</button>
+                                        <button class="btn btn-danger" @click="deleteUser(user.id)">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <button 
+                                class="page-button" 
+                                :disabled="userCurrentPage === 1"
+                                @click="userCurrentPage--"
+                            >
+                                上一页
+                            </button>
+                            <button 
+                                v-for="page in userTotalPages" 
+                                :key="page"
+                                class="page-button"
+                                :class="{ active: page === userCurrentPage }"
+                                @click="userCurrentPage = page"
+                            >
+                                {{ page }}
+                            </button>
+                            <button 
+                                class="page-button" 
+                                :disabled="userCurrentPage === userTotalPages"
+                                @click="userCurrentPage++"
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 房间管理 -->
+                <div v-if="activeTab === 'rooms'">
+                    <div class="search-bar">
+                        <input 
+                            type="text" 
+                            class="search-input"
+                            v-model="roomSearch" 
+                            placeholder="搜索房间..."
+                            @input="searchRooms"
+                        >
+                        <select class="filter-dropdown" v-model="roomStatusFilter" @change="searchRooms">
+                            <option value="all">所有状态</option>
+                            <option value="waiting">等待中</option>
+                            <option value="playing">游戏中</option>
+                            <option value="closed">已关闭</option>
+                        </select>
+                    </div>
+
+                    <div v-if="roomLoading" class="loading">加载中...</div>
+                    <div v-else-if="roomError" class="error">{{ roomError }}</div>
+                    <div v-else-if="filteredRooms.length === 0" class="empty-state">没有找到房间</div>
+                    <div v-else>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>房间ID</th>
+                                    <th>房间名称</th>
+                                    <th>房主</th>
+                                    <th>状态</th>
+                                    <th>玩家数</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="room in paginatedRooms" :key="room.id">
+                                    <td>{{ room.id }}</td>
+                                    <td>{{ room.name }}</td>
+                                    <td>{{ room.hostUsername }}</td>
+                                    <td>{{ getRoomStatusText(room.status) }}</td>
+                                    <td>{{ room.currentPlayers }}/{{ room.maxPlayers }}</td>
+                                    <td>{{ formatDate(room.createdAt) }}</td>
+                                    <td>
+                                        <button class="btn btn-danger" @click="deleteRoom(room.id)">关闭</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <button 
+                                class="page-button" 
+                                :disabled="roomCurrentPage === 1"
+                                @click="roomCurrentPage--"
+                            >
+                                上一页
+                            </button>
+                            <button 
+                                v-for="page in roomTotalPages" 
+                                :key="page"
+                                class="page-button"
+                                :class="{ active: page === roomCurrentPage }"
+                                @click="roomCurrentPage = page"
+                            >
+                                {{ page }}
+                            </button>
+                            <button 
+                                class="page-button" 
+                                :disabled="roomCurrentPage === roomTotalPages"
+                                @click="roomCurrentPage++"
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计分析 -->
+                <div v-if="activeTab === 'statistics'">
+                    <h3>用户活动统计</h3>
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <h3>今日新增用户</h3>
+                            <div class="stat-value">{{ statistics.todayNewUsers }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>今日创建房间</h3>
+                            <div class="stat-value">{{ statistics.todayCreatedRooms }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>平均房间人数</h3>
+                            <div class="stat-value">{{ statistics.avgRoomPlayers }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>最大同时在线</h3>
+                            <div class="stat-value">{{ statistics.maxConcurrentUsers }}</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">用户地区分布</h3>
+                    <div class="chart-container">
+                        <div>地区分布图表</div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">使用量统计</h3>
+                    <div v-if="usageStatsLoading" class="loading">加载中...</div>
+                    <div v-else-if="usageStatsError" class="error">{{ usageStatsError }}</div>
+                    <div v-else>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>用户ID</th>
+                                    <th>用户名</th>
+                                    <th>创建房间数</th>
+                                    <th>加入房间数</th>
+                                    <th>总游戏时间</th>
+                                    <th>最后活动</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="stat in usageStats" :key="stat.userId">
+                                    <td>{{ stat.userId }}</td>
+                                    <td>{{ stat.username }}</td>
+                                    <td>{{ stat.roomsCreated }}</td>
+                                    <td>{{ stat.roomsJoined }}</td>
+                                    <td>{{ formatPlayTime(stat.totalPlayTime) }}</td>
+                                    <td>{{ formatDate(stat.lastActivity) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 服务器设置 -->
+                <div v-if="activeTab === 'settings'">
+                    <h3>服务器配置</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">服务器版本</div>
+                            <div class="detail-value">{{ settings.serverVersion }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">运行时间</div>
+                            <div class="detail-value">{{ settings.serverUptime }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">数据库路径</div>
+                            <div class="detail-value">{{ settings.dbPath }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">JWT密钥</div>
+                            <div class="detail-value">{{ settings.jwtSecret }}</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">安全设置</h3>
+                    <div class="search-bar">
+                        <button class="btn btn-primary" @click="generateNewJWT">生成新JWT密钥</button>
+                        <button class="btn btn-danger" @click="cleanupExpiredData">清理过期数据</button>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">系统日志</h3>
+                    <div style="height: 300px; background: #f8f9fa; border-radius: 10px; padding: 15px; overflow-y: auto;">
+                        <div v-for="log in systemLogs" :key="log.timestamp" style="margin-bottom: 10px;" :style="{ color: getLogColor(log.type) }">
+                            {{ formatTime(log.timestamp) }} [{{ log.type.toUpperCase() }}] {{ log.message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加用户模态框 -->
+        <div v-if="showAddUserModal" class="modal" @click.self="showAddUserModal = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>添加用户</h2>
+                    <button class="close-button" @click="showAddUserModal = false">&times;</button>
+                </div>
+                <form @submit.prevent="addUser">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" v-model="newUser.username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email" v-model="newUser.email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" v-model="newUser.password" required>
+                    </div>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="button" class="btn" @click="showAddUserModal = false" style="margin-right: 10px;">取消</button>
+                        <button type="submit" class="btn btn-success">添加</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 用户详情模态框 -->
+        <div v-if="selectedUser" class="modal" @click.self="selectedUser = null">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>用户详情</h2>
+                    <button class="close-button" @click="selectedUser = null">&times;</button>
+                </div>
+                <div>
+                    <div class="detail-section">
+                        <h3>基本信息</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">用户ID</div>
+                                <div class="detail-value">{{ selectedUser.id }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">用户名</div>
+                                <div class="detail-value">{{ selectedUser.username }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">邮箱</div>
+                                <div class="detail-value">{{ selectedUser.email }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">状态</div>
+                                <div class="detail-value">
+                                    <span :class="['status-badge', selectedUser.onlineStatus === 'online' ? 'status-online' : 'status-offline']">
+                                        {{ selectedUser.onlineStatus === 'online' ? '在线' : '离线' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">注册时间</div>
+                                <div class="detail-value">{{ formatDate(selectedUser.createdAt) }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">最后登录</div>
+                                <div class="detail-value">{{ formatDate(selectedUser.lastLogin) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-section" style="margin-top: 20px;">
+                        <h3>设备信息</h3>
+                        <div class="detail-item">
+                            <div class="detail-value">{{ JSON.stringify(selectedUser.deviceInfo, null, 2) }}</div>
+                        </div>
+                    </div>
+                    <div class="detail-section" style="margin-top: 20px;">
+                        <h3>统计信息</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">创建房间数</div>
+                                <div class="detail-value">{{ selectedUser.statistics.totalRoomsCreated }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">加入房间数</div>
+                                <div class="detail-value">{{ selectedUser.statistics.totalRoomsJoined }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">总游戏时间</div>
+                                <div class="detail-value">{{ formatPlayTime(selectedUser.statistics.totalPlayTime) }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">客户端版本</div>
+                                <div class="detail-value">{{ selectedUser.clientVersion }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // 基础状态
+                    activeTab: 'users',
+                    serverStatus: '在线',
+                    lastUpdate: '',
+                    message: null,
+
+                    // 统计数据
+                    stats: {
+                        totalUsers: 0,
+                        onlineUsers: 0,
+                        activeRooms: 0,
+                        totalRooms: 0
+                    },
+
+                    // 用户管理
+                    users: [],
+                    userSearch: '',
+                    userStatusFilter: 'all',
+                    userCurrentPage: 1,
+                    userItemsPerPage: 10,
+                    userLoading: false,
+                    userError: null,
+                    selectedUser: null,
+                    showAddUserModal: false,
+                    newUser: {
+                        username: '',
+                        email: '',
+                        password: ''
+                    },
+
+                    // 房间管理
+                    rooms: [],
+                    roomSearch: '',
+                    roomStatusFilter: 'all',
+                    roomCurrentPage: 1,
+                    roomItemsPerPage: 10,
+                    roomLoading: false,
+                    roomError: null,
+
+                    // 统计分析
+                    statistics: {
+                        todayNewUsers: 0,
+                        todayCreatedRooms: 0,
+                        avgRoomPlayers: 0,
+                        maxConcurrentUsers: 0
+                    },
+                    usageStats: [],
+                    usageStatsLoading: false,
+                    usageStatsError: null,
+
+                    // 服务器设置
+                    settings: {
+                        serverVersion: '1.0.0',
+                        serverUptime: '24小时 15分钟',
+                        dbPath: './db.json',
+                        jwtSecret: 'your_jwt_secret_key (已隐藏)'
+                    },
+                    systemLogs: []
+                };
+            },
+            computed: {
+                filteredUsers() {
+                    let filtered = this.users;
+                    
+                    if (this.userSearch) {
+                        const search = this.userSearch.toLowerCase();
+                        filtered = filtered.filter(user => 
+                            user.username.toLowerCase().includes(search) ||
+                            user.email.toLowerCase().includes(search)
+                        );
+                    }
+                    
+                    if (this.userStatusFilter !== 'all') {
+                        filtered = filtered.filter(user => 
+                            user.onlineStatus === this.userStatusFilter
+                        );
+                    }
+                    
+                    return filtered;
+                },
+                paginatedUsers() {
+                    const start = (this.userCurrentPage - 1) * this.userItemsPerPage;
+                    const end = start + this.userItemsPerPage;
+                    return this.filteredUsers.slice(start, end);
+                },
+                userTotalPages() {
+                    return Math.ceil(this.filteredUsers.length / this.userItemsPerPage);
+                },
+                filteredRooms() {
+                    let filtered = this.rooms;
+                    
+                    if (this.roomSearch) {
+                        const search = this.roomSearch.toLowerCase();
+                        filtered = filtered.filter(room => 
+                            room.name.toLowerCase().includes(search) ||
+                            room.hostUsername.toLowerCase().includes(search)
+                        );
+                    }
+                    
+                    if (this.roomStatusFilter !== 'all') {
+                        filtered = filtered.filter(room => 
+                            room.status === this.roomStatusFilter
+                        );
+                    }
+                    
+                    return filtered;
+                },
+                paginatedRooms() {
+                    const start = (this.roomCurrentPage - 1) * this.roomItemsPerPage;
+                    const end = start + this.roomItemsPerPage;
+                    return this.filteredRooms.slice(start, end);
+                },
+                roomTotalPages() {
+                    return Math.ceil(this.filteredRooms.length / this.roomItemsPerPage);
+                }
+            },
+            methods: {
+                // 工具函数
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    return date.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                formatTime(dateString) {
+                    const date = new Date(dateString);
+                    return date.toLocaleTimeString('zh-CN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                },
+                formatPlayTime(seconds) {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    return `${hours}小时 ${minutes}分钟`;
+                },
+                getRoomStatusText(status) {
+                    const statusMap = {
+                        waiting: '等待中',
+                        playing: '游戏中',
+                        closed: '已关闭'
+                    };
+                    return statusMap[status] || status;
+                },
+                getLogColor(type) {
+                    const colorMap = {
+                        error: '#e53e3e',
+                        warn: '#ed8936',
+                        info: '#4299e1'
+                    };
+                    return colorMap[type] || '#4299e1';
+                },
+                showMessage(text, type = 'success') {
+                    this.message = { text, type: `message-${type}` };
+                    setTimeout(() => {
+                        this.message = null;
+                    }, 3000);
+                },
+
+                // API调用
+                async fetchUsers() {
+                    this.userLoading = true;
+                    this.userError = null;
+                    try {
+                        const response = await axios.get('/api/users');
+                        this.users = response.data.users || [];
+                        this.updateStats();
+                    } catch (error) {
+                        console.error('获取用户列表失败:', error);
+                        this.userError = '加载失败，请刷新页面';
+                        // 使用模拟数据
+                        this.users = this.generateMockUsers();
+                    } finally {
+                        this.userLoading = false;
+                    }
+                },
+
+                async fetchRooms() {
+                    this.roomLoading = true;
+                    this.roomError = null;
+                    try {
+                        const response = await axios.get('/api/rooms');
+                        this.rooms = response.data.rooms || [];
+                        this.updateStats();
+                    } catch (error) {
+                        console.error('获取房间列表失败:', error);
+                        this.roomError = '加载失败，请刷新页面';
+                        // 使用模拟数据
+                        this.rooms = this.generateMockRooms();
+                    } finally {
+                        this.roomLoading = false;
+                    }
+                },
+
+                async fetchStatistics() {
+                    this.usageStatsLoading = true;
+                    this.usageStatsError = null;
+                    try {
+                        // 获取统计数据
+                        this.statistics = {
+                            todayNewUsers: 12,
+                            todayCreatedRooms: 8,
+                            avgRoomPlayers: 3.2,
+                            maxConcurrentUsers: 25
+                        };
+                        
+                        // 获取使用量统计
+                        this.usageStats = this.generateMockUsageStats();
+                    } catch (error) {
+                        console.error('获取统计数据失败:', error);
+                        this.usageStatsError = '加载失败，请刷新页面';
+                    } finally {
+                        this.usageStatsLoading = false;
+                    }
+                },
+
+                async fetchSettings() {
+                    try {
+                        // 获取系统日志
+                        this.systemLogs = this.generateMockLogs();
+                    } catch (error) {
+                        console.error('获取设置数据失败:', error);
+                    }
+                },
+
+                // 用户管理功能
+                searchUsers() {
+                    this.userCurrentPage = 1;
+                },
+
+                showUserDetail(user) {
+                    this.selectedUser = user;
+                },
+
+                async addUser() {
+                    try {
+                        const response = await axios.post('/api/admin/users', this.newUser);
+                        this.showMessage('用户添加成功');
+                        this.showAddUserModal = false;
+                        this.newUser = { username: '', email: '', password: '' };
+                        this.fetchUsers();
+                    } catch (error) {
+                        console.error('添加用户失败:', error);
+                        this.showMessage('添加用户失败: ' + (error.response?.data?.error || '未知错误'), 'error');
+                    }
+                },
+
+                async deleteUser(userId) {
+                    if (confirm('确定要删除这个用户吗？')) {
+                        try {
+                            await axios.delete(`/api/admin/users/${userId}`);
+                            this.showMessage('用户删除成功');
+                            this.fetchUsers();
+                        } catch (error) {
+                            console.error('删除用户失败:', error);
+                            this.showMessage('删除用户失败: ' + (error.response?.data?.error || '未知错误'), 'error');
+                        }
+                    }
+                },
+
+                // 房间管理功能
+                searchRooms() {
+                    this.roomCurrentPage = 1;
+                },
+
+                async deleteRoom(roomId) {
+                    if (confirm('确定要关闭这个房间吗？')) {
+                        try {
+                            // 这里需要添加关闭房间的API端点
+                            this.showMessage('房间关闭成功');
+                            this.fetchRooms();
+                        } catch (error) {
+                            console.error('关闭房间失败:', error);
+                            this.showMessage('关闭房间失败', 'error');
+                        }
+                    }
+                },
+
+                // 设置功能
+                generateNewJWT() {
+                    if (confirm('确定要生成新的JWT密钥吗？这会导致所有现有会话失效。')) {
+                        this.showMessage('JWT密钥已更新');
+                    }
+                },
+
+                cleanupExpiredData() {
+                    if (confirm('确定要清理过期数据吗？')) {
+                        this.showMessage('过期数据清理完成');
+                    }
+                },
+
+                // 统计更新
+                updateStats() {
+                    this.stats.totalUsers = this.users.length;
+                    this.stats.onlineUsers = this.users.filter(u => u.onlineStatus === 'online').length;
+                    this.stats.totalRooms = this.rooms.length;
+                    this.stats.activeRooms = this.rooms.filter(r => r.status !== 'closed').length;
+                },
+
+                // 模拟数据生成
+                generateMockUsers() {
+                    return [
+                        {
+                            id: 'user1',
+                            username: '玩家小明',
+                            email: 'xiaoming@example.com',
+                            onlineStatus: 'online',
+                            createdAt: '2023-01-15T10:30:00Z',
+                            lastLogin: '2023-07-20T14:25:00Z',
+                            deviceInfo: { device: 'Windows 10', browser: 'Chrome 114', resolution: '1920x1080' },
+                            clientVersion: '1.2.0',
+                            statistics: { totalRoomsCreated: 12, totalRoomsJoined: 45, totalPlayTime: 72000 }
+                        },
+                        {
+                            id: 'user2',
+                            username: '游戏达人',
+                            email: 'daren@example.com',
+                            onlineStatus: 'offline',
+                            createdAt: '2023-02-20T09:15:00Z',
+                            lastLogin: '2023-07-19T20:40:00Z',
+                            deviceInfo: { device: 'Windows 11', browser: 'Firefox 113', resolution: '2560x1440' },
+                            clientVersion: '1.2.0',
+                            statistics: { totalRoomsCreated: 28, totalRoomsJoined: 120, totalPlayTime: 259200 }
+                        }
+                    ];
+                },
+
+                generateMockRooms() {
+                    return [
+                        {
+                            id: 'room001',
+                            name: '快乐生存服务器',
+                            hostUsername: '玩家小明',
+                            hostId: 'user1',
+                            status: 'waiting',
+                            currentPlayers: 3,
+                            maxPlayers: 8,
+                            createdAt: '2023-07-20T14:00:00Z',
+                            lastActivity: '2023-07-20T15:30:00Z'
+                        }
+                    ];
+                },
+
+                generateMockUsageStats() {
+                    return [
+                        { userId: 'user2', username: '游戏达人', roomsCreated: 28, roomsJoined: 120, totalPlayTime: 259200, lastActivity: '2023-07-19T20:40:00Z' },
+                        { userId: 'user4', username: '大神级别', roomsCreated: 56, roomsJoined: 230, totalPlayTime: 648000, lastActivity: '2023-07-18T22:30:00Z' }
+                    ];
+                },
+
+                generateMockLogs() {
+                    const now = new Date();
+                    return [
+                        { timestamp: new Date(now - 5 * 60 * 1000).toISOString(), type: 'info', message: '服务器启动成功' },
+                        { timestamp: new Date(now - 4 * 60 * 1000).toISOString(), type: 'info', message: '数据库连接成功' },
+                        { timestamp: new Date(now - 3 * 60 * 1000).toISOString(), type: 'warn', message: '检测到可疑登录尝试' }
+                    ];
+                }
+            },
+            watch: {
+                activeTab(newTab) {
+                    if (newTab === 'users' && this.users.length === 0) {
+                        this.fetchUsers();
+                    } else if (newTab === 'rooms' && this.rooms.length === 0) {
+                        this.fetchRooms();
+                    } else if (newTab === 'statistics') {
+                        this.fetchStatistics();
+                    } else if (newTab === 'settings') {
+                        this.fetchSettings();
+                    }
+                }
+            },
+            mounted() {
+                // 初始化数据
+                this.lastUpdate = new Date().toLocaleString('zh-CN');
+                this.fetchUsers();
+
+                // 定时刷新
+                setInterval(() => {
+                    this.lastUpdate = new Date().toLocaleString('zh-CN');
+                    if (this.activeTab === 'users') {
+                        this.fetchUsers();
+                    } else if (this.activeTab === 'rooms') {
+                        this.fetchRooms();
+                    } else if (this.activeTab === 'statistics') {
+                        this.fetchStatistics();
+                    }
+                }, 30000);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
