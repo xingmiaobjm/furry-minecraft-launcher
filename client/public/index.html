@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furry Minecraft Launcher</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #ffffff;
+            --background-color: #1e1e2f;
+            --card-background: #2d2d44;
+            --border-color: #3d3d5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        #app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        /* 窗口控制按钮 */
+        .window-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .window-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        .window-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .close-btn:hover {
+            background-color: #e74c3c !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <img src="../icons/icon.png" alt="Logo" class="loading-logo">
+        <div class="loading-text">正在加载 Furry Minecraft Launcher...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+    </div>
+
+    <div class="window-controls">
+        <button class="window-btn" id="minimizeBtn">—</button>
+        <button class="window-btn" id="maximizeBtn">□</button>
+        <button class="window-btn close-btn" id="closeBtn">✕</button>
+    </div>
+
+    <div id="app">
+        <!-- 应用内容将由 JavaScript 动态渲染 -->
+    </div>
+
+    <script>
+        // 简单的加载动画控制
+        const loadingProgress = document.getElementById('loadingProgress');
+        const loadingScreen = document.getElementById('loadingScreen');
+        
+        // 模拟加载进度
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 5;
+            loadingProgress.style.width = `${progress}%`;
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 500);
+            }
+        }, 100);
+
+        // 窗口控制事件
+        document.getElementById('minimizeBtn').addEventListener('click', () => {
+            window.electronAPI.minimizeWindow();
+        });
+
+        document.getElementById('maximizeBtn').addEventListener('click', () => {
+            window.electronAPI.maximizeWindow();
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            window.electronAPI.closeWindow();
+        });
+    </script>
+</body>
+</html>
