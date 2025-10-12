@@ -1,0 +1,24 @@
+{
+  "name": "p2p-third-party-server",
+  "version": "1.0.0",
+  "description": "P2P第三方部署服务器 - 提供STUN/TURN服务和房间中转",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "setup-turn": "node setup-turn.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1",
+    "lowdb": "^6.1.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "type": "commonjs"
+}

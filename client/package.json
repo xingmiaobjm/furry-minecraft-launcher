@@ -1,0 +1,49 @@
+{
+  "name": "furry-minecraft-launcher",
+  "version": "1.0.0",
+  "description": "A cross-platform Minecraft launcher with Furry style",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "package:win": "electron-packager . 'Furry Minecraft Launcher' --platform=win32 --arch=x64 --out=build --overwrite --ignore=node_modules/.cache --electron-version=27.3.11"
+  },
+  "build": {
+    "appId": "com.furryminecraftlauncher.app",
+    "productName": "Furry Minecraft Launcher",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "public/**/*",
+      "src/**/*",
+      "icons/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "signAndEditExecutable": false
+    }
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
+    "fs-extra": "^11.1.1",
+    "node-downloader-helper": "^2.1.1",
+    "simple-peer": "^9.11.1",
+    "uuid": "^9.0.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "users": [
+    {
+      "id": "hM6rXjyha",
+      "username": "演示用户1",
+      "email": "demo1@example.com",
+      "password": "$2b$10$pY2.5bRGrDrHcvCcE5MTkuEqFztgbOjQnzFOCNwJAvz1GtSSHCFw6",
+      "deviceInfo": {},
+      "clientVersion": "admin-created",
+      "createdAt": "2025-10-12T02:58:14.147Z",
+      "lastLogin": "2025-10-12T02:58:14.147Z",
+      "onlineStatus": "offline",
+      "userSettings": {
+        "theme": "default",
+        "language": "zh-CN",
+        "notificationsEnabled": true
+      },
+      "statistics": {
+        "totalRoomsCreated": 0,
+        "totalRoomsJoined": 0,
+        "totalPlayTime": 0
+      }
+    },
+    {
+      "id": "FoNuYQ4Nj",
+      "username": "演示用户2",
+      "email": "demo2@example.com",
+      "password": "$2b$10$kvFJyg9iuubBgcRVQ.TQiepyDeLIhmWw7bqjv.EyAtoSPGy6Fp8dG",
+      "deviceInfo": {},
+      "clientVersion": "admin-created",
+      "createdAt": "2025-10-12T02:58:15.274Z",
+      "lastLogin": "2025-10-12T02:58:15.274Z",
+      "onlineStatus": "offline",
+      "userSettings": {
+        "theme": "default",
+        "language": "zh-CN",
+        "notificationsEnabled": true
+      },
+      "statistics": {
+        "totalRoomsCreated": 0,
+        "totalRoomsJoined": 0,
+        "totalPlayTime": 0
+      }
+    }
+  ],
+  "rooms": [],
+  "stats": {
+    "totalUsers": 2,
+    "totalRooms": 0,
+    "activeUsers": 0,
+    "activeRooms": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "rooms": [],
+  "connections": [],
+  "serverStats": {
+    "totalRooms": 0,
+    "activeRooms": 0,
+    "totalConnections": 0,
+    "natTypes": {
+      "full-cone": 0,
+      "restricted": 0,
+      "port-restricted": 0,
+      "symmetric": 0,
+      "unknown": 0
+    },
+    "startTime": "2025-10-10T12:52:25.967Z",
+    "uptime": 7200.7478103
+  }
+}
