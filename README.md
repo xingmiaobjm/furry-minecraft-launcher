@@ -3,6 +3,13 @@
 # 注意，本仓库内的资产尚未开发完全，请勿使用！
 
 一款新一代跨平台Minecraft启动器。由Furry开发，具有Furry风格的界面设计，及极简设计语言。
+<<<<<<< HEAD
+=======
+
+本项目主体分为两个部分：
+1. 启动器（Furry Minecraft Launcher）为客户端启动器
+2. 服务器（Furry Minecraft Server）为P2P服务器，用于多人游戏房间的数据交换，链接客户端启动器与游戏房间。可第三方部署
+>>>>>>> 9f797c5bff6371242f00854a76799160e9079f9e
 
 ## 特点
 
@@ -60,4 +67,8 @@ npm run build:linux
 
 ## 许可证
 
+<<<<<<< HEAD
 基于MIT（见[license](license)）
+=======
+基于MIT（见[license](license)）
+>>>>>>> 9f797c5bff6371242f00854a76799160e9079f9e

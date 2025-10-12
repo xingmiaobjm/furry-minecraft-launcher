@@ -1,6 +1,7 @@
 {
   "name": "p2p-central-server",
   "version": "1.0.0",
+<<<<<<< HEAD:server/p2p-central-server/package.json
   "description": "P2P中央服务器 - 负责用户管理和房间地址记录",
   "main": "server.js",
   "scripts": {
@@ -23,3 +24,36 @@
   },
   "type": "commonjs"
 }
+=======
+  "description": "P2P中央服务器 - 用于Minecraft启动器的房间管理和P2P信令转发",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "uuid": "^9.0.1",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "minecraft",
+    "p2p",
+    "server",
+    "websocket",
+    "launcher"
+  ],
+  "author": "星眇不爱写java",
+  "license": "MIT"
+}
+>>>>>>> 9f797c5bff6371242f00854a76799160e9079f9e:p2p-central-server/package.json
