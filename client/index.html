@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furry Minecraft Launcher</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7289DA',
+                        secondary: '#99AAB5',
+                        success: '#43B581',
+                        warning: '#FAA61A',
+                        error: '#F04747',
+                        dark: '#2C2F33',
+                        darker: '#23272A',
+                        light: '#F2F3F5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .backdrop-blur-sm {
+                backdrop-filter: blur(4px);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .border-gradient {
+                border-image: linear-gradient(to right, #7289DA, #43B581) 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-darker text-light min-h-screen flex flex-col">
+    <!-- 自定义窗口控制栏 -->
+    <div id="titlebar" class="bg-dark/80 backdrop-blur-sm border-b border-secondary/20 flex items-center justify-between px-4 py-2 -webkit-app-region:drag">
+        <div class="flex items-center gap-2">
+            <img src="./assets/icons/icon.png" alt="FML" class="w-6 h-6 rounded">
+            <span class="font-semibold text-shadow">Furry Minecraft Launcher</span>
+        </div>
+        <div class="flex items-center gap-2 -webkit-app-region:no-drag">
+            <button id="min-btn" class="w-8 h-8 flex items-center justify-center hover:bg-dark rounded-full transition-colors">
+                <i class="fa fa-window-minimize"></i>
+            </button>
+            <button id="max-btn" class="w-8 h-8 flex items-center justify-center hover:bg-dark rounded-full transition-colors">
+                <i class="fa fa-window-maximize"></i>
+            </button>
+            <button id="close-btn" class="w-8 h-8 flex items-center justify-center hover:bg-error/20 rounded-full transition-colors">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主应用容器 -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- 侧边导航 -->
+        <nav id="sidebar" class="w-64 bg-dark border-r border-secondary/20 flex flex-col">
+            <div class="p-4">
+                <div class="rounded-lg overflow-hidden mb-4">
+                    <img id="avatar" src="https://api.dicebear.com/7.x/micah/svg?seed=Player" alt="Avatar" class="w-full aspect-square object-cover">
+                </div>
+                <div class="text-center">
+                    <h3 id="username" class="font-bold">未登录</h3>
+                    <p class="text-xs text-secondary">点击登录账户</p>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto py-2">
+                <ul class="space-y-1 px-2">
+                    <li>
+                        <a href="#dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary">
+                            <i class="fa fa-home text-lg"></i>
+                            <span>仪表盘</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#versions" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark/80 transition-colors">
+                            <i class="fa fa-gamepad text-lg"></i>
+                            <span>游戏版本</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#mods" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark/80 transition-colors">
+                            <i class="fa fa-puzzle-piece text-lg"></i>
+                            <span>模组管理</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#resource-packs" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark/80 transition-colors">
+                            <i class="fa fa-picture-o text-lg"></i>
+                            <span>资源包</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#p2p" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark/80 transition-colors">
+                            <i class="fa fa-users text-lg"></i>
+                            <span>P2P 房间</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dark/80 transition-colors">
+                            <i class="fa fa-cog text-lg"></i>
+                            <span>设置</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="p-4 border-t border-secondary/20">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-secondary">版本</span>
+                    <span id="app-version" class="text-xs font-semibold">0.0.0</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="flex-1 overflow-y-auto bg-gradient-to-br from-darker to-dark">
+            <!-- 仪表盘页面 -->
+            <section id="dashboard-page" class="p-6">
+                <h1 class="text-2xl font-bold mb-6">欢迎使用 Furry Minecraft Launcher</h1>
+                
+                <!-- 快速启动卡片 -->
+                <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-6 mb-6">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- 版本选择 -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium mb-2">选择版本</label>
+                            <div class="relative">
+                                <select id="quick-version-select" class="w-full bg-darker border border-secondary/30 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                    <option value="">请先下载或安装版本</option>
+                                </select>
+                                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-secondary">
+                                    <i class="fa fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Java 选择 -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium mb-2">Java 路径</label>
+                            <div class="relative">
+                                <select id="quick-java-select" class="w-full bg-darker border border-secondary/30 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                    <option value="">自动选择</option>
+                                </select>
+                                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-secondary">
+                                    <i class="fa fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 启动按钮 -->
+                        <div class="flex items-end">
+                            <button id="quick-launch-btn" class="bg-primary hover:bg-primary/90 text-white font-bold px-6 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto justify-center">
+                                <i class="fa fa-play"></i>
+                                <span>启动游戏</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-secondary">已安装版本</h3>
+                            <i class="fa fa-gamepad text-primary"></i>
+                        </div>
+                        <p id="installed-versions-count" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-secondary">已加载模组</h3>
+                            <i class="fa fa-puzzle-piece text-success"></i>
+                        </div>
+                        <p id="mods-count" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-secondary">游戏时长</h3>
+                            <i class="fa fa-clock-o text-warning"></i>
+                        </div>
+                        <p id="play-time" class="text-2xl font-bold">0h 0m</p>
+                    </div>
+                    <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-secondary">存储空间</h3>
+                            <i class="fa fa-hdd-o text-error"></i>
+                        </div>
+                        <p id="storage-usage" class="text-2xl font-bold">0 GB</p>
+                    </div>
+                </div>
+                
+                <!-- 最近游戏记录 -->
+                <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">最近游戏记录</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-secondary/20">
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-secondary">版本</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-secondary">时长</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-secondary">日期</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-secondary">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-games">
+                                <tr>
+                                    <td colspan="4" class="text-center py-6 text-secondary">暂无游戏记录</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 资源使用图表 -->
+                <div class="bg-dark/50 backdrop-blur-sm rounded-xl border border-secondary/20 p-6">
+                    <h2 class="text-xl font-bold mb-4">系统资源使用</h2>
+                    <div class="h-64">
+                        <canvas id="resource-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 其他页面内容会通过JavaScript动态加载 -->
+        </main>
+    </div>
+
+    <!-- 全局加载指示器 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-darker/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-dark rounded-xl p-6 flex flex-col items-center gap-4">
+            <div class="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-lg">正在加载...</p>
+        </div>
+    </div>
+
+    <!-- 全局通知组件 -->
+    <div id="notifications" class="fixed top-4 right-4 flex flex-col gap-2 z-50 max-w-xs"></div>
+
+    <!-- 主JavaScript文件 -->
+    <script src="./renderer.js"></script>
+    
+    <!-- 窗口控制脚本 -->
+    <script>
+        // 窗口控制按钮事件
+        document.getElementById('min-btn').addEventListener('click', () => {
+            window.electronAPI.window.minimize();
+        });
+        
+        document.getElementById('max-btn').addEventListener('click', () => {
+            window.electronAPI.window.maximize();
+        });
+        
+        document.getElementById('close-btn').addEventListener('click', () => {
+            window.electronAPI.window.close();
+        });
+        
+        // 初始化应用版本显示
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.appVersion) {
+                document.getElementById('app-version').textContent = window.appVersion;
+            }
+        });
+    </script>
+</body>
+</html>
