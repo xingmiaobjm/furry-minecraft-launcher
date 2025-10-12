@@ -1,12 +1,19 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, platform } = require('electron');
+const path = require('path');
 
 // 安全的IPC通信桥接
 contextBridge.exposeInMainWorld('electronAPI', {
-  // 窗口控制
-  window: {
-    minimize: () => ipcRenderer.send('window-min'),
-    maximize: () => ipcRenderer.send('window-max'),
-    close: () => ipcRenderer.send('window-close')
+  // 文件系统操作
+  fs: {
+    selectDirectory: () => ipcRenderer.invoke('select-directory'),
+    selectFile: (options) => ipcRenderer.invoke('select-file', options)
+  },
+  
+  // 路径管理
+  path: {
+    getAppDataPath: () => ipcRenderer.invoke('get-app-data-path'),
+    getGameDir: () => ipcRenderer.invoke('get-game-dir'),
+    setGameDir: (dir) => ipcRenderer.invoke('set-game-dir', dir)
   },
   
   // 配置管理
@@ -23,7 +30,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createOffline: (username) => ipcRenderer.invoke('account:create-offline', username),
     getAll: () => ipcRenderer.invoke('account:get-all'),
     getCurrent: () => ipcRenderer.invoke('account:get-current'),
-    switchAccount: (uuid) => ipcRenderer.invoke('account:switch', uuid),
+    switch: (uuid) => ipcRenderer.invoke('account:switch', uuid),
     logout: () => ipcRenderer.invoke('account:logout'),
     delete: (uuid) => ipcRenderer.invoke('account:delete', uuid)
   },
@@ -33,11 +40,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getAll: () => ipcRenderer.invoke('version:get-all'),
     getInfo: (versionId) => ipcRenderer.invoke('version:get-info', versionId),
     delete: (versionId) => ipcRenderer.invoke('version:delete', versionId),
-    getInstalled: () => ipcRenderer.invoke('get-installed-versions'),
-    verify: (versionId) => ipcRenderer.invoke('verify-version', versionId),
-    getMods: (versionId) => ipcRenderer.invoke('get-version-mods', versionId),
-    getResourcePacks: (versionId) => ipcRenderer.invoke('get-version-resource-packs'),
-    checkModLoader: (versionId, loaderType) => ipcRenderer.invoke('check-mod-loader', versionId, loaderType)
+    getInstalledVersions: () => ipcRenderer.invoke('get-installed-versions'),
+    getVersionMods: (versionId) => ipcRenderer.invoke('get-version-mods', versionId),
+    getVersionResourcePacks: (versionId) => ipcRenderer.invoke('get-version-resource-packs', versionId),
+    checkModLoader: (versionId, loaderType) => ipcRenderer.invoke('check-mod-loader', versionId, loaderType),
+    verifyVersion: (versionId) => ipcRenderer.invoke('verify-version', versionId)
   },
   
   // 下载管理
@@ -46,10 +53,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVersionManifest: () => ipcRenderer.invoke('download:get-version-manifest'),
     downloadVersion: (versionId, destination) => ipcRenderer.invoke('download:version', versionId, destination),
     cancelAll: () => ipcRenderer.invoke('download:cancel-all'),
-    downloadGameVersion: (versionId, options) => ipcRenderer.invoke('download-version', versionId, options),
+    getVersionList: (options) => ipcRenderer.invoke('get-version-list', options),
+    downloadVersion: (versionId, options) => ipcRenderer.invoke('download-version', versionId, options),
+    cancelDownload: (downloadId) => ipcRenderer.invoke('cancel-download', downloadId),
     saveOptions: (options) => ipcRenderer.invoke('save-download-options', options),
-    getOptions: () => ipcRenderer.invoke('get-download-options'),
-    cancel: (downloadId) => ipcRenderer.invoke('cancel-download', downloadId)
+    getOptions: () => ipcRenderer.invoke('get-download-options')
   },
   
   // 游戏管理
@@ -57,124 +65,150 @@ contextBridge.exposeInMainWorld('electronAPI', {
     launch: (options) => ipcRenderer.invoke('game:launch', options),
     stop: () => ipcRenderer.invoke('game:stop'),
     isRunning: () => ipcRenderer.invoke('game:is-running'),
-    verifyFiles: (versionId) => ipcRenderer.invoke('game:verify-files', versionId)
+    verifyFiles: (versionId) => ipcRenderer.invoke('game:verify-files', versionId),
+    getJavaPaths: () => ipcRenderer.invoke('get-java-paths')
   },
   
   // 系统信息
   system: {
-    getInfo: () => ipcRenderer.invoke('system:get-info'),
-    getJavaPaths: () => ipcRenderer.invoke('get-java-paths'),
-    getAppDataPath: () => ipcRenderer.invoke('get-app-data-path')
+    getInfo: () => ipcRenderer.invoke('system:get-info')
   },
   
-  // 文件对话框
+  // 对话框
   dialog: {
-    show: (options) => ipcRenderer.invoke('dialog:show', options),
-    selectDirectory: () => ipcRenderer.invoke('select-directory'),
-    selectFile: (options) => ipcRenderer.invoke('select-file', options)
+    show: (options) => ipcRenderer.invoke('dialog:show', options)
   },
   
-  // 游戏目录
-  gameDir: {
-    get: () => ipcRenderer.invoke('get-game-dir'),
-    set: (dir) => ipcRenderer.invoke('set-game-dir', dir)
+  // 窗口控制
+  window: {
+    minimize: () => ipcRenderer.send('window-min'),
+    maximize: () => ipcRenderer.send('window-max'),
+    close: () => ipcRenderer.send('window-close')
   },
   
   // P2P房间管理
   p2p: {
-    // 房间操作
     createRoom: (options) => ipcRenderer.invoke('p2p-create-room', options),
     joinRoom: (options) => ipcRenderer.invoke('p2p-join-room', options),
     leaveRoom: (options) => ipcRenderer.invoke('p2p-leave-room', options),
-    closeRoom: (roomId) => ipcRenderer.invoke('p2p-close-room', roomId),
-    
-    // 房间信息
     getRooms: () => ipcRenderer.invoke('p2p-get-rooms'),
     getRoomDetails: (roomId) => ipcRenderer.invoke('p2p-get-room-details', roomId),
     getMyRooms: () => ipcRenderer.invoke('p2p-get-my-rooms'),
-    
-    // 房间交互
     sendMessage: (options) => ipcRenderer.invoke('p2p-send-message', options),
     setRoomStatus: (roomId, status) => ipcRenderer.invoke('p2p-set-room-status', roomId, status),
-    
-    // 服务器操作
+    closeRoom: (roomId) => ipcRenderer.invoke('p2p-close-room', roomId),
     startRoomServer: (roomId, options) => ipcRenderer.invoke('p2p-start-room-server', roomId, options),
     stopRoomServer: (roomId) => ipcRenderer.invoke('p2p-stop-room-server', roomId),
-    
-    // 测试
     testConnection: () => ipcRenderer.invoke('p2p-test-connection'),
-    
-    // 事件监听
-    on: {
-      roomCreated: (callback) => ipcRenderer.on('p2p-room-created', (event, ...args) => callback(...args)),
-      playerJoined: (callback) => ipcRenderer.on('p2p-player-joined', (event, ...args) => callback(...args)),
-      playerLeft: (callback) => ipcRenderer.on('p2p-player-left', (event, ...args) => callback(...args)),
-      roomClosed: (callback) => ipcRenderer.on('p2p-room-closed', (event, ...args) => callback(...args)),
-      roomStatusChanged: (callback) => ipcRenderer.on('p2p-room-status-changed', (event, ...args) => callback(...args)),
-      roomMessage: (callback) => ipcRenderer.on('p2p-room-message', (event, ...args) => callback(...args)),
-      playerListUpdated: (callback) => ipcRenderer.on('p2p-player-list-updated', (event, ...args) => callback(...args)),
-      serverStarted: (callback) => ipcRenderer.on('p2p-server-started', (event, ...args) => callback(...args)),
-      serverStopped: (callback) => ipcRenderer.on('p2p-server-stopped', (event, ...args) => callback(...args)),
-      peerConnected: (callback) => ipcRenderer.on('p2p-peer-connected', (event, ...args) => callback(...args)),
-      peerDisconnected: (callback) => ipcRenderer.on('p2p-peer-disconnected', (event, ...args) => callback(...args)),
-      error: (callback) => ipcRenderer.on('p2p-room-error', (event, ...args) => callback(...args)),
-      peerError: (callback) => ipcRenderer.on('p2p-peer-error', (event, ...args) => callback(...args))
+    on: (event, callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on(event, listener);
+      return () => ipcRenderer.removeListener(event, listener);
     }
   },
   
-  // 下载进度更新
-  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', (event, ...args) => callback(...args)),
-  
-  // 验证进度更新
-  onVerifyProgress: (callback) => ipcRenderer.on('verify-progress', (event, ...args) => callback(...args)),
-  
-  // 版本更新通知
-  onVersionsUpdated: (callback) => ipcRenderer.on('versions-updated', (event, ...args) => callback(...args)),
-  
-  // 渲染器准备就绪通知
-  rendererReady: () => ipcRenderer.send('renderer-ready')
+  // 事件监听
+  on: {
+    downloadProgress: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('download-progress', listener);
+      return () => ipcRenderer.removeListener('download-progress', listener);
+    },
+    verifyProgress: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('verify-progress', listener);
+      return () => ipcRenderer.removeListener('verify-progress', listener);
+    },
+    versionsUpdated: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('versions-updated', listener);
+      return () => ipcRenderer.removeListener('versions-updated', listener);
+    },
+    p2pRoomCreated: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-room-created', listener);
+      return () => ipcRenderer.removeListener('p2p-room-created', listener);
+    },
+    p2pPlayerJoined: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-player-joined', listener);
+      return () => ipcRenderer.removeListener('p2p-player-joined', listener);
+    },
+    p2pPlayerLeft: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-player-left', listener);
+      return () => ipcRenderer.removeListener('p2p-player-left', listener);
+    },
+    p2pPlayerListUpdated: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-player-list-updated', listener);
+      return () => ipcRenderer.removeListener('p2p-player-list-updated', listener);
+    },
+    p2pRoomClosed: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-room-closed', listener);
+      return () => ipcRenderer.removeListener('p2p-room-closed', listener);
+    },
+    p2pRoomStatusChanged: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-room-status-changed', listener);
+      return () => ipcRenderer.removeListener('p2p-room-status-changed', listener);
+    },
+    p2pRoomMessage: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-room-message', listener);
+      return () => ipcRenderer.removeListener('p2p-room-message', listener);
+    },
+    p2pRoomError: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-room-error', listener);
+      return () => ipcRenderer.removeListener('p2p-room-error', listener);
+    },
+    p2pServerStarted: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-server-started', listener);
+      return () => ipcRenderer.removeListener('p2p-server-started', listener);
+    },
+    p2pServerStopped: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-server-stopped', listener);
+      return () => ipcRenderer.removeListener('p2p-server-stopped', listener);
+    },
+    p2pPeerConnected: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-peer-connected', listener);
+      return () => ipcRenderer.removeListener('p2p-peer-connected', listener);
+    },
+    p2pPeerDisconnected: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-peer-disconnected', listener);
+      return () => ipcRenderer.removeListener('p2p-peer-disconnected', listener);
+    },
+    p2pPeerError: (callback) => {
+      const listener = (event, ...args) => callback(...args);
+      ipcRenderer.on('p2p-peer-error', listener);
+      return () => ipcRenderer.removeListener('p2p-peer-error', listener);
+    }
+  }
 });
 
-// 暴露版本信息
-try {
-  const packageJson = require('./package.json');
-  contextBridge.exposeInMainWorld('appVersion', packageJson.version);
-} catch (error) {
-  contextBridge.exposeInMainWorld('appVersion', '0.0.0');
-}
+// 暴露平台信息
+contextBridge.exposeInMainWorld('platform', platform);
 
-// 添加一些常用的工具函数
-contextBridge.exposeInMainWorld('utils', {
-  formatBytes: (bytes, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  },
-  
-  formatTime: (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${secs}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    }
-    return `${secs}s`;
-  },
-  
-  generateUUID: () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
+// 暴露环境变量（谨慎使用）
+contextBridge.exposeInMainWorld('env', {
+  NODE_ENV: process.env.NODE_ENV
+});
+
+// 通知渲染进程准备就绪
+ipcRenderer.send('renderer-ready');
+
+// 错误处理
+window.addEventListener('error', (event) => {
+  console.error('渲染进程错误:', event.error);
+});
+
+// 页面卸载时清理所有监听器
+window.addEventListener('beforeunload', () => {
+  // 清理逻辑可以在这里添加
 });
